@@ -1,0 +1,46 @@
+class HDMageMedallion:HDPickup{
+	default{
+		//$Category "Items/Hideous Destructor/Magic"
+		//$Title "The Medallion of Mages"
+		//$Sprite "MMDAA0"
+
+		-hdpickup.droptranslation +flatsprite
+		inventory.pickupmessage "$PICKUP_MEDALLION";
+		inventory.icon "MMDAA0";
+		inventory.maxamount 10;
+		hdpickup.refid "mge";
+		radius 4;
+		height 4;
+		scale 0.25;
+		hdpickup.bulk 8.6;
+		tag "$TAG_MEDALLION";
+	}
+	states{
+	spawn:
+		MMDA A -1 light("MAGEM");
+		stop;
+	}
+	override void doeffect(){
+		super.doeffect();
+		if(
+				!random(0,320)
+				&&owner.countinv("HDGreens")<(250*amount)
+		){
+				if(!owner.findinventory("HDGreens"))
+					HDMagicShield.FlashSparks(owner);
+			owner.A_GiveInventory("HDGreens",5);
+			}
+		if(!random(0,640)){
+		bfgnecroshard frag;
+		thinkeriterator frage=ThinkerIterator.create("bfgnecroshard");
+		while(frag=bfgnecroshard(frage.next(true))){
+			HDMagicShield.FlashSparks(frag);
+			frag.destroy();
+			owner.A_GiveInventory("HDGreens",250);
+			HDMagicShield.FlashSparks(owner);
+			if(hd_debug>=4)console.printf("Frag shard absorbed.");
+			return;
+			}
+		}
+	}
+}

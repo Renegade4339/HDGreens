@@ -1,0 +1,1044 @@
+class IsCursed: Inventory {
+    default{
+        inventory.maxamount 1;
+    }
+}
+
+class HDPlayerRaiser:Actor{
+	default{
+		+nointeraction
+	}
+	void A_RaiseThis(){
+		if(!master||master.health>0){destroy();return;}
+		A_RaiseMaster(RF_TRANSFERFRIENDLINESS|RF_NOCHECKPOSITION);
+		master.master=tracer;
+	}
+	states{
+	spawn:
+		TNT1 A 10 nodelay A_SetTics(stamina);
+		TNT1 A 0 A_RaiseThis();
+		stop;
+	}
+}
+
+class archfiendabilities:HDMagicBase{
+	default{
+		hdweapon.refid "vil";
+		tag "$TAG_ARCHFIENDPLAYER";
+		obituary "$OB_ARCHFIENDPLAYER";
+	}
+bool rezsuccess;
+bool rezzed;
+
+	override void doeffect(){
+		super.doeffect();
+		if(!owner.CountInv("HDGreens"))
+			owner.A_TakeInventory("ImmunityToFire");
+		else owner.A_GiveInventory("ImmunityToFire");
+		}
+
+	override string gethelptext(){
+		return
+		WEPHELP_FIRE.."  Cast Immolation\n"
+		..WEPHELP_ALTFIRE.."  Cast Legacy Immolation\n"
+		..WEPHELP_RELOAD.."  Mass Reanimate\n"
+		..WEPHELP_UNLOAD.."  Curse"
+		;
+	}
+
+	override string,double getpickupsprite(){
+		return "FIRED0",1.;
+	}
+
+//should've done this
+	override void OwnerDied(){
+				super.OwnerDied();
+				if(hd_pof)return;
+			HDPlayerPawn hdp=HDPlayerPawn(owner);
+			if(owner){
+				ArchieDeathThingy ppp=ArchieDeathThingy(spawn("ArchieDeathThingy",hdp.pos,ALLOW_REPLACE));
+				ppp.tauntsound=hdp.tauntsound;
+				ppp.xdeathsound=hdp.xdeathsound;
+				ppp.gruntsound=hdp.gruntsound;
+				ppp.landsound=hdp.landsound;
+				ppp.medsound=hdp.medsound;
+				ppp.gibbedsound=hdp.gibbedsound;
+				ppp.painsound=hdp.painsound;
+				ppp.deathsound=hdp.deathsound;
+				ppp.sprite=hdp.sprite;
+				ppp.translation=hdp.translation;
+				ppp.master=hdp;
+				ppp.target=hdp.target;
+				ppp.angle=hdp.angle;
+				ppp.pitch=hdp.pitch;
+				ppp.scale=hdp.scale;
+				ppp.bfriendly=hdp.bfriendly;
+				ppp.friendplayer=hdp.friendplayer;
+			}
+}
+
+	override void PostBeginPlay(){
+		if(Wads.CheckNumForName("FIREH0",wads.ns_sprites,-1,false)<0){
+			if(owner){
+				actor ownor=owner;
+				ownor.A_GiveInventory("HealerImpAbilities");
+				if(
+					ownor.player
+					&&min(level.time,ownor.getage())<10
+				){
+					HDWeaponSelector sss;
+					thinkeriterator ssi=ThinkerIterator.create("HDWeaponSelector");
+					while(sss=HDWeaponSelector(ssi.next(true))){
+						if(
+							sss.other==ownor
+							&&sss.weptype=="ArchfiendAbilities"
+						){
+							sss.weptype="HealerImpAbilities";
+							break;
+						}
+					}
+				}
+				ownor.A_Log("$LOG_NOVILE",true);
+			}else{
+				spawn("HealerImpAbilities",pos,ALLOW_REPLACE);
+			}
+			destroy();
+			return;
+		}
+		super.postbeginplay();
+	}
+
+action void A_ArchieZapAttack(){
+			target=null;
+			A_LookEx (LOF_NOSOUNDCHECK|LOF_NOSEESOUND|LOF_NOJUMP,maxseedist:0,fov:90,label:"null");
+			flinetracedata rlt;
+			LineTrace(
+				angle,0x7fffffff,pitch,
+				TRF_ALLACTORS,
+				offsetz:height-6,
+				data:rlt
+			);
+			if(rlt.hitactor){
+		actor lmao;
+			lmao=rlt.hitactor;
+			target=lmao;
+			actor ppp=spawn("PlayerBloodyHellFire",lmao.pos,ALLOW_REPLACE);
+				ppp.master=self;
+				ppp.A_SetFriendly(self.bfriendly);
+				ppp.friendplayer=self.friendplayer;
+				ppp.target=lmao;
+
+			A_TakeInventory("HDGreens",75);
+	    	}else if(target){
+		actor lmao;
+			lmao=target;
+			actor ppp=spawn("PlayerBloodyHellFire",lmao.pos,ALLOW_REPLACE);
+				ppp.master=self;
+				ppp.target=lmao;
+				ppp.A_SetFriendly(self.bfriendly);
+				ppp.friendplayer=self.friendplayer;
+
+			A_TakeInventory("HDGreens",75);
+	    	}else{
+			if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_NOTARGET"),25);
+			}
+		}
+
+action void A_Curse(){
+			flinetracedata rlt;
+			LineTrace(
+				angle,0x7fffffff,pitch,
+				TRF_ALLACTORS,
+				offsetz:height-6,
+				data:rlt
+			);
+
+			if(rlt.hitactor){
+		actor lmao;
+			lmao=rlt.hitactor;
+			if(lmao&&lmao.countinv("IsCursed")){
+			setweaponstate("wtfbro");
+			}else{
+			actor ppp=spawn("CurseThingy",lmao.pos,ALLOW_REPLACE);
+				ppp.master=self;
+				ppp.target=lmao;
+				ppp.A_SetFriendly(self.bfriendly);
+				ppp.friendplayer=self.friendplayer;
+
+			A_TakeInventory("HDGreens",250);
+	    	}
+	    }else{
+			if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_NOTARGET"),25);
+			}
+		}
+
+action void A_LegacyArchieZapAttack(){
+			if(countinv("HDGreens")<30)return;
+			A_TakeInventory("HDGreens",30);
+			target=null;
+			A_LookEx (LOF_NOSOUNDCHECK|LOF_NOSEESOUND|LOF_NOJUMP,maxseedist:0,fov:90,label:"null");
+			flinetracedata rlt;
+			LineTrace(
+				angle,0x7fffffff,pitch,
+				TRF_ALLACTORS,
+				offsetz:height-6,
+				data:rlt
+			);
+			if(rlt.hitactor){
+		actor lmao;
+			lmao=rlt.hitactor;
+			target=lmao;
+			actor ppp=spawn("PlayerBloodyHellFire",lmao.pos,ALLOW_REPLACE);
+				ppp.master=self;
+				ppp.target=lmao;
+				ppp.A_SetFriendly(self.bfriendly);
+				ppp.friendplayer=self.friendplayer;
+	    	}else if(target){
+		actor lmao;
+			lmao=target;
+			actor ppp=spawn("PlayerBloodyHellFire",lmao.pos,ALLOW_REPLACE);
+				ppp.master=self;
+				ppp.target=lmao;
+				ppp.A_SetFriendly(self.bfriendly);
+				ppp.friendplayer=self.friendplayer;
+	    	}else{
+			A_SpawnItemEx("Putto",4,0,30,2,0,2,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);
+			}
+		}
+
+
+	static void A_MassHeal(actor caller){
+		actor aaa;
+		blockthingsiterator it=blockthingsiterator.create(caller,256);
+		while(it.next()){
+			aaa=it.thing;
+			if(
+				caller.countinv("HDGreens")<75
+			)continue;
+			if(
+				aaa.bcorpse
+				&&aaa.findstate("raise")
+				&&aaa.checksight(caller)
+			){
+				int dist=int(max(
+					abs(aaa.pos.x-caller.pos.x),
+					abs(aaa.pos.y-caller.pos.y),
+					abs(aaa.pos.z-caller.pos.z)
+				));
+				actor hhh=spawn("HDPlayerRaiser",aaa.pos,ALLOW_REPLACE);
+				hhh.A_SetFriendly(caller.bfriendly);
+				hhh.friendplayer=caller.friendplayer;
+				caller.A_TakeInventory("HDGreens",75);
+				hhh.master=aaa;
+				hhh.tracer=caller;
+				hhh.stamina=(dist>>3)+random(10,30);
+			}
+		}
+	}
+
+	states{
+	fire:
+		TNT1 A 0 A_JumpIfInventory("HDGreens",75,"CastFlames");
+		goto notenoughgreens;
+
+	altfire:
+		TNT1 A 0 A_JumpIfInventory("HDGreens",90,"CastLegacyFlames");
+		goto notenoughgreens;
+
+	reload:
+		TNT1 A 0 A_JumpIfInventory("HDGreens",75,"Heal");
+		goto notenoughgreens;
+
+	user4:
+		TNT1 A 0 A_JumpIfInventory("HDGreens",250,"Curse");
+		goto notenoughgreens;
+
+	CastFlamesAborted:
+		TNT1 A 0 A_StopSound(CHAN_WEAPON);
+		TNT1 A 0{
+				if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_IMMOABORT"),25);
+				}
+		goto nope;
+
+	wtfbro:
+		TNT1 A 0{
+				if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_ISCURSED"),25);
+				}
+		goto nope;
+
+	Curse:
+		TNT1 P 0 A_Curse();
+		TNT1 PO 4 bright light("HELL");
+		TNT1 N 8 bright light("HELL");
+		goto nope;
+
+	CastFlames:
+		TNT1 G 0 bright A_StartSound("vile/start",CHAN_WEAPON,CHANF_OVERLAP);
+		TNT1 G 10 bright;
+		TNT1 G 0 bright A_SpawnItemEx("ImmolationLight1",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 H 2 bright light("CANF") A_GunFlash();
+		TNT1 G 0 A_Refire("CastFlames2");
+		goto CastFlamesAborted;
+	CastFlames2:
+		TNT1 G 0 bright A_SpawnItemEx("ImmolationLight2",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 HHH 3 bright light("CANF") A_GunFlash();
+		TNT1 G 0 A_Refire("CastFlames3");
+		goto CastFlamesAborted;
+	CastFlames3:
+		TNT1 G 0 bright A_SpawnItemEx("ImmolationLight3",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 IJ 4 bright light("CANF") A_GunFlash();
+		TNT1 G 0 A_Refire("CastFlames4");
+		goto CastFlamesAborted;
+	CastFlames4:
+		TNT1 G 0 bright A_SpawnItemEx("ImmolationLight4",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 KKL 4 bright light("HECK") A_GunFlash();
+		TNT1 G 0 A_Refire("CastFlames5");
+		goto CastFlamesAborted;
+	CastFlames5:
+		TNT1 G 0 bright A_SpawnItemEx("ImmolationLight5",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 L 8 bright light("HELL") A_GunFlash();
+		TNT1 G 0 A_Refire("CastFlames6");
+		goto CastFlamesAborted;
+	CastFlames6:
+		TNT1 G 0 bright A_SpawnItemEx("ImmolationLight6",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 MN 2 bright light("HELL") A_GunFlash();
+		TNT1 G 0 A_Refire("CastFlames7");
+		goto CastFlamesAborted;
+	CastFlames7:
+		TNT1 NOO 2 bright;
+		TNT1 G 0 A_Refire("CastFlames8");
+		goto CastFlamesAborted;
+	CastFlames8:
+		TNT1 G 0 bright A_SpawnItemEx("ImmolationLight7",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 P 0{
+			A_ArchieZapAttack();
+		}
+		TNT1 PO 4 bright light("HELL") A_GunFlash();
+		TNT1 N 8 bright light("HELL") A_GunFlash();
+		goto nope;
+	heal:
+		TNT1 G 0 bright A_SpawnItemEx("MassReanimationLight",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 \ 0{
+			flinetracedata bruh;
+			LineTrace(
+				angle,128,pitch,
+				TRF_ALLACTORS,
+				offsetz:height-6,
+				data:bruh
+			);
+			if(bruh.hitactor&&bruh.hitactor.bcorpse){
+			if(dohelptext())a_weaponmessage(StringTable.Localize("$ABILITY_LOOKUP"),25);
+		return;
+		}
+			flinetracedata rlt;
+			LineTrace(
+				angle,128,pitch*-1,
+				TRF_ALLACTORS,
+				offsetz:height-6,
+				data:rlt
+			);
+			if(!rlt.hitactor||!rlt.hitactor.bcorpse){
+			if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_NOCORPSE"),25);
+		}else{
+				A_TakeInventory("HDGreens",75);
+				invoker.rezzed=true;
+				RaiseActor(rlt.hitactor,RF_NOCHECKPOSITION);
+					rlt.hitactor.A_SetFriendly(bfriendly);
+				if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_REANIMATED"),30);
+	    	}
+		}
+		TNT1 \\ 8 bright light("HEAL");
+		TNT1 # 16 bright light("HEAL"){
+			if(invoker.rezzed){
+				A_MassHeal(self);
+				invoker.rezzed=false;
+	    	}
+		}
+		goto nope;
+
+	CastLegacyFlames:
+		TNT1 G 0 bright A_StartSound("vile/start",CHAN_WEAPON,CHANF_OVERLAP);
+		TNT1 G 10 bright;
+		TNT1 G 0 bright A_SpawnItemEx("ImmolationLight1",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 H 2 bright light("CANF") A_GunFlash();
+		TNT1 G 0 A_Refire("CastLegacyFlames2");
+		goto CastFlamesAborted;
+	CastLegacyFlames2:
+		TNT1 G 0 bright A_SpawnItemEx("ImmolationLight2",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 HHH 3 bright light("CANF"){ A_FireProjectile("PlayerHeckFire",frandom(-4,4)); A_TakeInventory("HDGreens",5); A_GunFlash();}
+		TNT1 G 0 A_Refire("CastLegacyFlames3");
+		goto CastFlamesAborted;
+	CastLegacyFlames3:
+		TNT1 G 0 bright A_SpawnItemEx("ImmolationLight3",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 IJ 4 bright light("CANF") A_GunFlash();
+		TNT1 G 0 A_Refire("CastLegacyFlames4");
+		goto CastFlamesAborted;
+	CastLegacyFlames4:
+		TNT1 G 0 bright A_SpawnItemEx("LegacyImmolationLight1",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 K 4 bright light("HECK") A_GunFlash();
+		TNT1 G 0 A_Refire("CastLegacyFlames5");
+		goto CastFlamesAborted;
+	CastLegacyFlames5:
+		TNT1 G 0 bright A_SpawnItemEx("LegacyImmolationLight2",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 KLL 2 bright light("HECK"){ A_FireProjectile("PlayerHeckFire",frandom(-4,4)); A_TakeInventory("HDGreens",5); A_GunFlash();}
+		TNT1 G 0 A_Refire("CastLegacyFlames6");
+		goto CastFlamesAborted;
+	CastLegacyFlames6:
+		TNT1 G 0 bright A_SpawnItemEx("ImmolationLight5",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 L 8 bright light("HELL") A_GunFlash();
+		TNT1 G 0 A_Refire("CastLegacyFlames7");
+		goto CastFlamesAborted;
+	CastLegacyFlames7:
+		TNT1 G 0 bright A_SpawnItemEx("ImmolationLight6",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 MN 2 bright light("HELL") A_GunFlash();
+		TNT1 G 0 A_Refire("CastLegacyFlames8");
+		goto CastFlamesAborted;
+	CastLegacyFlames8:
+		TNT1 NOO 2 bright{ A_FireProjectile("PlayerHeckFire",frandom(-4,4)); A_TakeInventory("HDGreens",5);}
+		TNT1 G 0 A_Refire("CastLegacyFlames9");
+		goto CastFlamesAborted;
+	CastLegacyFlames9:
+		TNT1 G 0 bright A_SpawnItemEx("ImmolationLight7",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 A 0 A_LegacyArchieZapAttack();
+		TNT1 PO 4 bright light("HELL") A_GunFlash();
+		TNT1 N 8 bright light("HELL") A_GunFlash();
+		goto nope;
+	}
+}
+
+class ArchieDeathThingy:IdleDummy{
+	sound tauntsound;
+	sound xdeathsound;
+	sound gruntsound;
+	sound landsound;
+	sound medsound;
+	sound gibbedsound;
+
+property tauntsound:tauntsound;
+property xdeathsound:tauntsound;
+property gruntsound:gruntsound;
+property landsound:landsound;
+property medsound:medsound;
+property gibbedsound:gibbedsound;
+	default{
+		+ghost -solid +nointeraction
+		height 1;
+		radius 1;
+		renderstyle "add";
+	}
+
+states{
+	spawn:
+		#### G 42 bright A_StartSound(deathsound,CHAN_VOICE);
+		#### Q 0 A_FaceTarget();
+		#### Q 0 A_Quake(2,40,0,768,0);
+		#### E 6 bright light("HELL") A_SetTranslucent(0.8,1);
+		#### E 6 A_SetTranslucent(0.4,1);
+		#### E 6 bright light("HELL") A_SetTranslucent(0.8,1);
+		#### E 6 A_SetTranslucent(0.4,1);
+		#### E 6 bright light("HELL") A_StartSound(deathsound,CHAN_VOICE);
+		#### Q 0 A_Quake(4,40,0,768,0);
+		#### E 4 bright light("HELL") A_SetTranslucent(0.8,1);
+		#### E 4 A_SetTranslucent(0.4,1);
+		#### E 4 bright light("HELL") A_SetTranslucent(0.8,1);
+		#### E 4 A_SetTranslucent(0.4,1);
+		#### E 4 bright light("HELL") A_StartSound(deathsound,CHAN_VOICE);
+		#### E 2 bright light("HELL") A_SetTranslucent(1,1);
+		#### E 2 A_SetTranslucent(0.5,1);
+		#### E 2 bright light("HELL") A_SetTranslucent(1,1);
+		#### E 2 A_SetTranslucent(0.5,1);
+		#### G 0 A_SetTranslucent(1,1);
+		#### Q 0 A_Quake(6,8,0,768,0);
+		#### EEE 2 bright light("HELL")A_StartSound(deathsound,CHAN_VOICE);
+	why:
+		#### G 6 bright light("HELL"){
+			A_Explode(72,196);
+			A_StartSound("weapons/rocklx",CHAN_WEAPON);
+			A_SpawnItemEx("NecroDeathLight",flags:SXF_SETTARGET);
+			A_SpawnItem("spawnFire",0.1,28,0,0);
+			A_StartSound(xdeathsound,CHAN_VOICE);
+			DistantNoise.Make(self,"world/rocketfar",2.);
+		}
+		#### G 14 bright light("HELL") A_Quake(8,14,0,768,0);
+		#### QQQQQQ 0 A_SpawnItemEx("SpawnFire",
+			frandom(-3,3),frandom(-3,3),frandom(25,30),
+			frandom(-3,3),frandom(-3,3),frandom(0.5,4),
+			flags:SXF_ABSOLUTE
+		);
+		#### Q 0 A_Quake(3,26,0,1024,0);
+		#### GGGGG 8 A_SpawnItemEx("PlayerShard",frandom(-8,8),frandom(-8,8),frandom(26,50),frandom(-1,1),0,0,frandom(0,360),SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);
+	fade:
+		#### GG 2 A_SpawnItemEx("PlayerShard",frandom(-8,8),frandom(-8,8),frandom(26,50),frandom(-1,1),0,0,frandom(0,360),SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS,16);
+		#### G 8 A_fadeOut(0.05);
+		#### Q 0 A_JumpIf(alpha < 0.10,1);
+		loop;
+
+		#### G 8 A_fadeOut(0.04);
+		TNT1 A 8 A_SpawnItemEx("PlayerShard",frandom(-8,8),frandom(-8,8),frandom(26,50),frandom(-1,1),0,0,frandom(0,360),SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS,16);
+		TNT1 A 0 A_NoBlocking();
+		TNT1 AAAAA 12 A_SpawnItemEx("PlayerShard",frandom(-8,8),frandom(-8,8),frandom(26,50),frandom(-1,1),0,0,frandom(0,360),SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS,16);
+	dead:
+		TNT1 A 19;
+		TNT1 P 1{
+			if(!target)return;
+			NecromancerGhost.Init(self);
+		}
+		stop;
+	}
+}
+
+class CurseThingy:IdleDummy{
+	default{
+		+ghost -solid +noclip
+		height 1;
+		radius 1;
+	}
+
+override void postbeginplay(){
+super.postbeginplay();
+if(!target)destroy();
+}
+
+override void tick(){
+super.tick();
+if(!target)destroy();
+A_Warp(AAPTR_TARGET, 0,0,0, 0, WARPF_NOCHECKPOSITION);
+}
+
+	static void A_MassHeal(actor caller){
+		actor aaa;
+		blockthingsiterator it=blockthingsiterator.create(caller,256);
+		while(it.next()){
+			aaa=it.thing;
+			if(
+				aaa.bcorpse
+				&&aaa.findstate("raise")
+				&&aaa.checksight(caller)
+			){
+				int dist=int(max(
+					abs(aaa.pos.x-caller.pos.x),
+					abs(aaa.pos.y-caller.pos.y),
+					abs(aaa.pos.z-caller.pos.z)
+				));
+				actor hhh=spawn("HDPlayerRaiser",aaa.pos,ALLOW_REPLACE);
+				hhh.A_SetFriendly(caller.bfriendly);
+				hhh.friendplayer=caller.friendplayer;
+				hhh.master=aaa;
+				hhh.tracer=caller;
+				hhh.stamina=(dist>>3)+random(10,30);
+			}
+		}
+	}
+
+states{
+	spawn:
+		TNT1 A 0 A_GiveToTarget("IsCursed",1);
+		TNT1 A 20 light("heal");
+		TNT1 A 0 A_Jump(1,"curse");
+		loop;
+	curse:
+		TNT1 A 20 A_Warp(AAPTR_TARGET,0,0,32,0,WARPF_NOCHECKPOSITION);
+		TNT1 A 80{A_Quake(1,40,0,512,"");A_StartSound("vile/curse",420,CHANF_OVERLAP);}
+		TNT1 A 0 A_TakeFromTarget("IsCursed",1);
+		TNT1 A 0 A_JumpIf(deathmatch,"cursedm");
+		TNT1 AAAAAA 0 A_SpawnItemEx("PlayerCurseShard",flags:SXF_TRANSFERPOINTERS|SXF_NOCHECKPOSITION);
+		TNT1 A 40;
+		TNT1 A 1 A_MassHeal(master);
+		stop;
+
+	cursedm:
+		TNT1 AAAAAA 0{
+		let aaa=spawn("NecroGhostMonster",self.pos,ALLOW_REPLACE);
+		aaa.master=master;
+		aaa.target=target;
+		aaa.A_SetFriendly(self.bfriendly);
+		aaa.friendplayer=self.friendplayer;
+		}
+		TNT1 A 40;
+		TNT1 A 1;
+		stop;
+ }
+}
+
+class PlayerCurseShard:PlayerShard{
+	default{
+		+ismonster
+		-countkill
+		+noclip
+		+nogravity
+		+lookallaround
+		+nosector
+		+nofear
+		height 56;
+		radius 20;
+		speed 20;
+	}
+
+	static void A_MassHeal(actor caller){
+		actor aaa;
+		blockthingsiterator it=blockthingsiterator.create(caller,256);
+		while(it.next()){
+			aaa=it.thing;
+			if(
+				aaa.bcorpse
+				&&aaa.findstate("raise")
+				&&aaa.checksight(caller)
+			){
+				int dist=int(max(
+					abs(aaa.pos.x-caller.pos.x),
+					abs(aaa.pos.y-caller.pos.y),
+					abs(aaa.pos.z-caller.pos.z)
+				));
+				actor hhh=spawn("HDPlayerRaiser",aaa.pos,ALLOW_REPLACE);
+				hhh.A_SetFriendly(caller.bfriendly);
+				hhh.friendplayer=caller.friendplayer;
+				hhh.master=aaa;
+				hhh.tracer=caller;
+				hhh.stamina=(dist>>3)+random(10,30);
+			}
+		}
+	}
+
+	states{
+	spawn:
+		TNT1 A 2 A_VileChase();
+		loop;
+	heal:
+		TNT1 A 1 A_MassHeal(self);
+		stop;
+	}
+}
+
+class NecroGhostMonster:IdleDummy{
+	default{
+		+ghost -solid +floorhugger -nodropoff +dropoff +floorclip +lookallaround
+		height 56;
+		radius 32;
+		speed 8;
+		maxstepheight 4096;
+		maxdropoffheight 4096;
+	}
+int timer;
+
+   static const Class<Actor> SpawnList[]={
+			"Serpentipede",
+			"Serpentipede",
+			"Serpentipede",
+			"Ardentipede",
+			"Ardentipede",
+			"Ardentipede",
+			"Regentipede",
+			"ZombieSemiStormtrooper",
+			"ZombieSemiStormtrooper",
+			"ZombieSMGStormtrooper",
+			"ZombieSMGStormtrooper",
+			"ZombieSMGStormtrooper",
+			"ZombieAutoStormtrooper",
+			"Jackboot",
+			"Jackboot",
+			"Jackboot",
+			"JackAndJillboot",
+			"JackAndJillboot",
+			"UndeadJackbootman",
+			"UndeadJackbootman",
+			"VulcanetteZombie",
+			"Babuin",
+			"Babuin",
+			"Babuin",
+			"SpecBabuin",
+			"SpecBabuin"
+    };
+
+override void beginplay(){
+super.beginplay();
+timer=random(320,1600);
+}
+
+states{
+	spawn:
+		TNT1 A 1 A_Look();
+		loop;
+	see:
+		TNT1 A 1{
+		if(timer<=0)setstatelabel("summon");
+		A_Wander();A_FaceTarget();
+		timer--;
+		}
+		loop;
+
+	summon:
+		TNT1 A 0 A_SpawnItemEx("TeleFog",flags:SXF_NOCHECKPOSITION);
+		TNT1 A 1{
+        let spawned = SpawnList [random (0, SpawnList.Size () - 1)];
+		actor aaa=spawn(spawned,self.pos,ALLOW_REPLACE);
+		if(!aaa)return;
+		aaa.master=master;
+		aaa.target=target;
+		aaa.angle=angle;
+		aaa.pitch=pitch;
+		aaa.A_SetFriendly(self.bfriendly);
+		aaa.friendplayer=self.friendplayer;
+		}
+		stop;
+ }
+}
+
+class LegacyImmolationLight1:LightGrossHack{
+states{
+	spawn:
+		TNT1 H 0 nodelay A_Stop();
+		TNT1 H 4 bright light("HECK");
+		stop;
+ }
+}
+
+class LegacyImmolationLight2:LightGrossHack{
+states{
+	spawn:
+		TNT1 H 0 nodelay A_Stop();
+		TNT1 KLL 2 bright light("HECK");
+		stop;
+ }
+}
+
+class ImmolationLight1:LightGrossHack{
+states{
+	spawn:
+		TNT1 H 0 nodelay A_Stop();
+		TNT1 H 2 bright light("CANF");
+		stop;
+ }
+}
+
+class ImmolationLight2:LightGrossHack{
+states{
+	spawn:
+		TNT1 H 0 nodelay A_Stop();
+		TNT1 HHH 3 bright light("CANF");
+		stop;
+ }
+}
+
+class ImmolationLight3:LightGrossHack{
+states{
+	spawn:
+		TNT1 H 0 nodelay A_Stop();
+		TNT1 IJ 4 bright light("CANF");
+		stop;
+ }
+}
+
+class ImmolationLight4:LightGrossHack{
+states{
+	spawn:
+		TNT1 H 0 nodelay A_Stop();
+		TNT1 KKL 4 bright light("HECK");
+		stop;
+ }
+}
+
+class ImmolationLight5:LightGrossHack{
+states{
+	spawn:
+		TNT1 H 0 nodelay A_Stop();
+		TNT1 L 8 bright light("HELL");
+		stop;
+ }
+}
+
+class ImmolationLight6:LightGrossHack{
+states{
+	spawn:
+		TNT1 H 0 nodelay A_Stop();
+		TNT1 MN 2 bright light("HELL");
+		stop;
+ }
+}
+
+class ImmolationLight7:LightGrossHack{
+states{
+	spawn:
+		TNT1 PO 4 bright light("HELL");
+		TNT1 N 8 bright light("HELL");
+		stop;
+ }
+}
+
+class MassReanimationLight:LightGrossHack{
+states{
+	spawn:
+		TNT1 H 0 nodelay A_Stop();
+		TNT1 \\ 8 bright light("HEAL");
+		TNT1 # 16 bright light("HEAL");
+		stop;
+ }
+}
+
+class PlayerBloodyHellFire:HDMobBase{
+	default{
+		+noblood +friendly
+		+bright
+		+lookallaround
+		+frightening
+		+dontgib
+		+nofear
+		+float
+		-countkill
+		-solid
+		-shootable
+		renderstyle "add";
+		gravity 0.1;
+		speed 10;
+		minmissilechance 16;
+		health 120;
+		damagefactor "hot",0;
+		meleerange 48;
+		radius 12;
+		height 16;
+		damage 24;
+		maxstepheight 128;
+		tag "$CC_FLAME";
+	}
+	override void postbeginplay(){
+		super.postbeginplay();
+		A_GiveInventory("ImmunityToFire");
+	}
+	override void tick(){
+		super.tick();
+		if(
+			!isfrozen()
+			&&!(level.time&(1|2|4))
+			&&bshootable
+		){
+			A_StartSound("misc/firecrkl",CHAN_BODY,CHANF_OVERLAP);
+			if(!(level.time&(1|2|4|8))){
+				A_SpawnItemEx("HDSmoke",frandom(-1,1),frandom(-1,1),frandom(1,6),frandom(-1,1),frandom(-1,1),frandom(1,3),0,SXF_ABSOLUTE,64);
+				A_Trail();
+				damagemobj(null,null,3,"maxhpdrain");
+			}
+		}
+	}
+	states{
+	spawn:
+		TNT1 A 0 A_Jump(256,"idle");
+		TNT1 AAAAAAA random(4,6) A_SpawnItemEx("HDSmoke",frandom(-1,1),frandom(-1,1),frandom(1,6),frandom(-1,1),frandom(-1,1),frandom(1,3),0,SXF_ABSOLUTE);
+		TNT1 AAAAAAA random(1,4) A_SpawnItemEx("HDSmoke",frandom(-1,1),frandom(-1,1),frandom(1,6),frandom(-1,1),frandom(-1,1),frandom(1,3),0,SXF_ABSOLUTE);
+		TNT1 A 0 A_StartSound("vile/firestrt",CHAN_VOICE,CHANF_OVERLAP);
+		TNT1 A 0 A_JumpIf(
+			master
+			&&(
+				!master.target
+				||master.target.countinv("ImmunityToFire")
+				||(
+					!master.checksight(master.target)
+					&&!random(0,3)
+				)
+			)
+		,"putto");
+		TNT1 A 0 A_SetShootable();
+		TNT1 A 0 A_SpawnItemEx("PlayerArchFireLight",flags:SXF_SETTARGET);
+		TNT1 AAAAA 0 A_SpawnItemEx("HDSmoke",frandom(-1,1),frandom(-1,1),frandom(1,6),frandom(-1,1),frandom(-1,1),frandom(1,3),0,SXF_ABSOLUTE);
+	idle:
+		FIRE A 2 A_HDWander(CHF_LOOK);
+		FIRE BABAB 2;
+		loop;
+	see:
+		FIRE A 1 A_HDChase();
+		FIRE BAB 1;
+		loop;
+	missile:
+		FIRE A 1 A_FaceTarget();
+		FIRE B 1{
+			A_Recoil(-1);
+			if(!random(0,15))A_SpawnProjectile("PlayerHeckFire",16,0,8);
+		}
+		goto see;
+	melee:
+		FIRE ABABABCBCBCDCDCDEDEFGFGFGFGHGHGH 2 A_VileFireMelee();
+		stop;
+	heal:
+		FIRE ABABCBCDCDEDEFGFGFGHGH 1;
+		stop;
+	death:
+		FIRE A 2{
+			bnointeraction=true;
+			bnofear=true;
+			A_QuakeEx(2,2,5,20,0,256,"",QF_SCALEDOWN|QF_WAVE,10,10,10);
+			A_HDBlast(pushradius:128,pushamount:64,source:master);
+			A_Immolate(null,master,80);
+			A_StartSound("misc/fwoosh",CHAN_BODY,CHANF_OVERLAP);
+		}
+		FIRE AABBCCDEFGH 2{
+			let aaa=spawn("HDFlameRedBig",(pos.xy,pos.z+frandom(10,40)),ALLOW_REPLACE);
+			if(aaa){
+				aaa.target=master;
+				aaa.vel=vel+(frandom(-1,1),frandom(-1,1),frandom(0.1,2));
+			}
+		}
+		stop;
+	putto:
+		TNT1 A 0{
+			let hdmm=hdmobbase(master);
+			if(hdmm)hdmm.firefatigue+=HDCONST_MAXFIREFATIGUE;
+		}
+		TNT1 AAAAA 0 A_SpawnItemEx("HDSmoke",frandom(-1,1),frandom(-1,1),frandom(1,6),frandom(-1,1),frandom(-1,1),frandom(1,3),0,SXF_ABSOLUTE);
+		TNT1 A 0 A_SpawnItemEx("Putto",flags:SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);
+		stop;
+	}
+	double lasttargetangle;
+	void A_VileFireMelee(){
+		if(!target)return;
+		setorigin((
+			target.pos.xy+angletovector(target.angle,frandom(1,7)),
+			target.pos.z+target.height*0.7
+			),true
+		);
+		vel=(vel+target.vel)*0.5;
+		A_StartSound("misc/firecrkl",CHAN_VOICE,CHANF_OVERLAP);
+		A_Immolate(target,master,2);
+		HDF.Give(target,"Heat",6);
+		target.vel.z+=tics*HDCONST_GRAVITY+0.04;
+
+		if(
+			target.health>0
+			&&absangle(lasttargetangle,target.angle)>frandom(0,500)
+		)target=null;
+		else lasttargetangle=target.angle;
+	}
+}
+class PlayerArchFireLight:PointLight{
+	bool triggered;
+	override void postbeginplay(){
+		super.postbeginplay();
+		args[0]=200;
+		args[1]=160;
+		args[2]=70;
+		args[3]=64;
+		args[4]=0;
+		triggered=false;
+	}
+	override void tick(){
+		if(!target||target.bnointeraction){destroy();return;}
+		setorigin(target.pos,true);
+		if(!target.bnofear){
+			if(!triggered){
+				args[3]=128;
+				triggered=true;
+			}else args[3]=int(frandom(0.8,1.)*args[3]);
+		}
+		else args[3]=random(50,72);
+	}
+}
+
+class PlayerHeckFire:HDActor{
+	default{
+		projectile;
+		-nogravity
+		+hittracer
+		+slidesonwalls
+		+noexplodefloor
+		+seekermissile
+		+nodamagethrust
+		+bloodlessimpact
+		+bright
+		-noblockmap
+		gravity 0.6;
+		damagetype "hot";
+		renderstyle "add";
+		alpha 0.7;
+		speed 12;
+		radius 8;
+		height 16;
+	}
+	states{
+	spawn:
+		FIRE ABAB random(1,2);
+		TNT1 A 0 A_Gravity();
+		FIRE ABAB random(1,2) A_SeekerMissile(2,4);
+	see:
+		FIRE A 0 A_Setscale(randompick(-1,1)*frandom(0.8,1.2),frandom(0.8,1.2));
+		FIRE A random(1,2) A_StartSound("misc/firecrkl",CHAN_BODY,CHANF_OVERLAP);
+		FIRE B random(1,2) A_NoGravity();
+		FIRE A 0 A_Setscale(randompick(-1,1)*frandom(0.8,1.2),frandom(0.8,1.2));
+		FIRE ABAB random(1,2) A_SeekerMissile(4,8);
+		FIRE A 0 A_Setscale(randompick(-1,1)*frandom(0.8,1.2),frandom(0.8,1.2));
+		FIRE A random(1,2) A_Jump(24,2);
+		FIRE B random(1,2) A_Gravity();
+		loop;
+	death:
+	fade:
+		FIRE CDCDEFEFGH 2;
+		stop;
+	xdeath:
+		FIRE C 1{
+			A_StartSound("misc/firecrkl",CHAN_BODY,CHANF_OVERLAP);
+			if(tracer)A_Immolate(tracer,target?target.master:null,1);
+		}
+		FIRE DCDCB 1{
+			if(!tracer)return;
+			A_Face(tracer);
+			A_Recoil(-speed*0.3);
+		}
+		FIRE CBABAB 1;
+		FIRE B 0 A_Jump(8,"see");
+		FIRE B 0{
+			A_StartSound("misc/firecrkl",CHAN_BODY,CHANF_OVERLAP);
+			if(tracer)bmissile=true;
+		}
+		goto see;
+	}
+}
+
+class PlayerShard:HDActor{
+	default{
+		+ismonster
+		+float
+		+nogravity
+		+noclip
+		+lookallaround
+		translation 1;
+		scale 0.6;
+		radius 0;
+		height 0;
+		renderstyle "add";
+		speed 5;
+	}
+	states{
+	spawn:
+		APLS A 0;
+		APLS A 0 A_SetGravity(0.1);
+		APLS AB 1 bright A_Look();
+		loop;
+	see:
+		APLS A 0 A_Jump(64,2);
+		APLS A 0 {vel.z+=frandom(-4,8);}
+		APLS A 2 bright A_JumpIf(alpha<0.1,"null");
+		APLS B 2 A_Wander();
+		APLS A 0 A_SpawnProjectile("PlayerShardTail",0,random(-24,24),random(-24,24),2,random(-14,14));
+		APLS A 2 bright;
+		APLS A 0 A_Wander();
+		APLS B 2 bright A_fadeOut(0.05);
+		APLS A 0 A_Wander();
+		loop;
+	heal:
+		TNT1 A 1;
+		stop;
+	}
+}
+class PlayerShardTail:HDActor{
+	default{
+		projectile;
+		+noclip
+		+nogravity
+		speed 2;
+		scale 0.4;
+		translation 1;
+		renderstyle "add";
+	}
+	states{
+	spawn:
+		APLS AB 2 bright nodelay A_fadeOut(0.01);
+		APLS A 0 ThrustThingZ(0,random(-4,8),0,0);
+		loop;
+	}
+}

@@ -1,0 +1,109 @@
+class HDMagicBase:HDWeapon{
+	default{
+		weapon.slotnumber 0;
+		+inventory.undroppable
+		+hdweapon.dontdisarm
+		+hdweapon.dontnull
+		+ambush
+		+WEAPON.MELEEWEAPON +WEAPON.NOALERT +WEAPON.NO_AUTO_SWITCH
+		+weapon.wimpy_weapon
+		+nointeraction
+		inventory.pickupmessage "$PICKUP_MAGIC";
+		inventory.pickupsound "misc/p_pkup";
+		tag "Magic Ability Base";
+	}
+	bool tired;
+	vector3 lasttargetpos;
+	double targetingangle;double targetingpitch;
+	double targetdistance;
+	states{
+	notenoughgreens:
+		TNT1 A 0{
+				if(dohelptext())A_WeaponMessage(Stringtable.Localize("$ABILITY_NOMANA"),25);
+				}
+		goto nope;
+
+	nocharge:
+		TNT1 A 0{
+				if(dohelptext())A_WeaponMessage(Stringtable.Localize("$ABILITY_NOCHARGE"),25);
+				}
+		goto nope;
+	}
+}
+
+class LightGrossHack:IdleDummy{
+	default{
+		+nointeraction +ghost -solid +notimefreeze
+		height 1;
+		radius 1;
+	}
+
+override void tick(){
+	super.tick();
+		if(!master){destroy();return;}
+			A_Warp(AAPTR_MASTER, 0,0,0, 0,
+			WARPF_NOCHECKPOSITION);
+}
+
+states{
+	spawn:
+		TNT1 A 1;
+		stop;
+ }
+}
+
+class HD_GreenPotion:HDPickup{
+    default{
+        -hdpickup.fitsinbackpack
+        hdpickup.refid "grn";
+        tag "Green(s)";
+    }
+    states{
+    spawn:
+        PINS A -1; stop;
+    pickup:
+        TNT1 A 0 A_GiveInventory("HDGreens", invoker.amount);
+        fail;
+    }
+}
+
+class HD_RandomAbility:HDPickup{
+    default{
+        -hdpickup.fitsinbackpack
+        hdpickup.refid "abi";
+        tag "Random Magic Ability";
+    }
+    states{
+    spawn:
+        PINS A -1; stop;
+    pickup:
+        TNT1 A 0{
+            		class<inventory> power;
+		HDMagicList hml=HDMagicList.get();
+		power=(class<HDMagicBase>)(hml.invclasses[random(0,hml.invclasses.size()-1)]);
+		    let hdp=HDPlayerPawn(self);
+			if(hdp)
+			    hdf.give(hdp,power,invoker.amount);
+        }fail;
+    }
+}
+
+class HD_MageKit:HDPickup{
+    default{
+        -hdpickup.fitsinbackpack
+        hdpickup.refid "mgk";
+        tag "$TAG_MAGEKIT";
+        inventory.icon "MMDAA0";
+    }
+    states{
+    spawn:
+        PINS A 1; stop;
+    pickup:
+        TNT1 A 0{
+          A_GiveInventory("HDGreens", 1000);
+          A_GiveInventory("HD_RandomAbility", 1);
+          A_GiveInventory("HDMageMedallion", 1);
+         }
+        fail;
+    }
+}

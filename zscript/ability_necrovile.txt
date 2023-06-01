@@ -1,0 +1,289 @@
+class necrovileabilities:HDMagicBase{
+	default{
+		hdweapon.refid "nrv";
+		tag "$TAG_NECROVILEPLAYER";
+		obituary "$OB_NECROVILEPLAYER";
+	}
+	bool rezsuccess;
+	bool isattacking;
+	int confirmationtimer;
+
+	override string gethelptext(){
+		return
+		WEPHELP_FIRE.."  Find target/cast cursed magics\n"
+		..WEPHELP_ALTFIRE.."  Displace\n"
+		..WEPHELP_RELOAD.."  Reanimate"
+		;
+	}
+
+	override void doeffect(){
+		super.doeffect();
+		if(confirmationtimer)confirmationtimer--;
+
+		if(isfrozen()||owner.health<1)return;
+			HDPlayerPawn hdp=HDPlayerPawn(owner);
+		if(hdp.stunned>50)hdp.stunned-=5;
+		if(!bplayingid&&isattacking)hdactor.ZapArc(owner,flags:hdactor.ARC2_SILENT,radius:owner.radius*4,height:owner.height*1.4);
+		if(owner.health<50&&!(level.time&(1|2))){
+			owner.givebody(1);
+		}
+}
+
+	override string,double getpickupsprite(){
+		return "FIREA0",1.;
+	}
+
+	override void PostBeginPlay(){
+		if(Wads.CheckNumForName("FIREH0",wads.ns_sprites,-1,false)<0){
+			if(owner){
+				actor ownor=owner;
+				ownor.A_GiveInventory("HealerImpAbilities");
+				if(
+					ownor.player
+					&&min(level.time,ownor.getage())<10
+				){
+					HDWeaponSelector sss;
+					thinkeriterator ssi=ThinkerIterator.create("HDWeaponSelector");
+					while(sss=HDWeaponSelector(ssi.next(true))){
+						if(
+							sss.other==ownor
+							&&sss.weptype=="NecrovileAbilities"
+						){
+							sss.weptype="HealerImpAbilities";
+							break;
+						}
+					}
+				}
+				ownor.A_Log("$LOG_NONECRO",true);
+			}else{
+				spawn("HealerImpAbilities",pos,ALLOW_REPLACE);
+			}
+			destroy();
+			return;
+		}
+		super.postbeginplay();
+	}
+
+action void A_NecrovileFlame(){
+			target=null;
+			A_LookEx (LOF_NOSOUNDCHECK|LOF_NOSEESOUND|LOF_NOJUMP,maxseedist:0,fov:90,label:"null");
+			flinetracedata rlt;
+			LineTrace(
+				angle,0x7fffffff,pitch,
+				TRF_ALLACTORS,
+				offsetz:height-6,
+				data:rlt
+			);
+			if(rlt.hitactor){
+			actor smh;
+			smh=rlt.hitactor;
+		if(
+			smh
+			&&absangle(angle,angleto(smh))<60
+		){
+			double rd=smh.radius*0.6;
+			let fff=NecromancerFlame(spawn("NecromancerFlame",
+				smh.pos+(frandom(-rd,rd),frandom(-rd,rd),frandom(0,smh.height*0.3))
+			));
+			if(fff){
+				fff.scale.x=randompick(-1,1)*frandom(0.9,1.1);
+				fff.scale.y=frandom(0.8,1.1);
+				fff.target=self;
+				fff.tracer=smh;
+			}
+		A_TakeInventory("HDGreens",75);
+					}
+	    	}else if(target){
+			actor smh;
+			smh=target;
+		if(
+			smh
+			&&absangle(angle,angleto(smh))<60
+		){
+			double rd=smh.radius*0.6;
+			let fff=NecromancerFlame(spawn("NecromancerFlame",
+				smh.pos+(frandom(-rd,rd),frandom(-rd,rd),frandom(0,smh.height*0.3))
+			));
+			if(fff){
+				fff.scale.x=randompick(-1,1)*frandom(0.9,1.1);
+				fff.scale.y=frandom(0.8,1.1);
+				fff.target=self;
+				fff.tracer=smh;
+			}
+		A_TakeInventory("HDGreens",75);
+	    	}
+		}else{
+			if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_NOTARGET"),25);
+			}
+			HDBleedingWound.findandpatch(self,10,HDBW_FINDPATCHED);
+	}
+
+	action void A_NecrovileWarp(){
+		A_TakeInventory("HDGreens",250);
+		spawn("TeleFog",pos);
+		bfrightened=true;
+		speed*=5;
+		maxstepheight*=5;
+		maxdropoffheight*=5;
+		bsolid=false;
+		bnogravity=true;
+		bfloat=true;
+		bdontinterpolate=true;
+
+		for(int i=0;i<100;i++)A_Wander();
+		HDBleedingWound.findandpatch(self,5,HDBW_FINDPATCHED);
+
+		spawn("TeleFog",pos);
+		bfrightened=false;
+		speed*=0.2;
+		maxstepheight*=0.2;
+		maxdropoffheight*=0.2;
+		bsolid=true;
+		bnogravity=false;
+		bfloat=false;
+		bdontinterpolate=false;
+	}
+
+	states{
+	fire:
+		TNT1 A 0 A_JumpIfInventory("HDGreens",75,"DevilMagics");
+		goto notenoughgreens;
+
+	altfire:
+		TNT1 A 0 A_JumpIfInventory("HDGreens",250,"DisplaceConfirmation");
+		goto notenoughgreens;
+
+	reload:
+		TNT1 A 0 A_JumpIfInventory("HDGreens",150,"Heal");
+		goto notenoughgreens;
+
+	DevilMagicsAborted:
+		TNT1 A 0 ; //A_StartSound("vile/firestrt",CHAN_WEAPON,CHANF_OVERLAP);
+		TNT1 # 0{invoker.isattacking=false;}
+		TNT1 A 0{
+				if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_CURSEABORT"),25);
+				}
+		goto nope;
+
+	DisplaceConfirmation:
+		TNT1 A 0{
+		if(invoker.confirmationtimer){
+			invoker.confirmationtimer=0;
+			setweaponstate("Displace");
+		}else{
+			invoker.confirmationtimer+=32;
+				if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_DISPLACECONFIRM"),32);
+					}
+				}
+		goto nope;
+
+	DevilMagics:
+		TNT1 # 0{invoker.isattacking=true;}
+		TNT1 FG 3;
+		TNT1 G 0 A_Refire("DevilMagics2");
+		goto DevilMagicsAborted;
+	DevilMagics2:
+		TNT1 G 3{
+			A_StartSound("vile/firestrt",CHAN_WEAPON,CHANF_OVERLAP);
+			if(
+				target
+				&&absangle(angle,angleto(target))<60
+				&&checksight(target)
+			)target.A_StartSound("vile/firestrt",CHAN_BODY,CHANF_OVERLAP);
+		}
+		TNT1 G 0 A_Refire("DevilMagics3");
+		goto DevilMagicsAborted;
+	DevilMagics3:
+		TNT1 G 0 bright A_SpawnItemEx("NecrovileAttackLight1",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 GGHHII 3 bright light("HELL") A_GunFlash();
+		TNT1 G 0 A_Refire("DevilMagics4");
+		goto DevilMagicsAborted;
+	DevilMagics4:
+		TNT1 G 0 bright A_SpawnItemEx("NecrovileAttackLight2",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 J 0 A_NecrovileFlame();
+		TNT1 JJJKKKLLL 3 bright light("HELL") A_GunFlash();
+	DevilMagicsEnd:
+		TNT1 L 0 A_StartSound("vile/firestrt",CHAN_WEAPON,CHANF_OVERLAP);
+		TNT1 G 0 bright A_SpawnItemEx("NecrovileAttackLight3",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 MMNNOOPP 3 bright light("HELL") A_GunFlash();
+		TNT1 # 0{invoker.isattacking=false;}
+		goto nope;
+
+	heal:
+		TNT1 G 0 bright A_SpawnItemEx("NecrovileReanimationLight",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 G 0{
+			flinetracedata bruh;
+			LineTrace(
+				angle,128,pitch,
+				TRF_ALLACTORS,
+				offsetz:height-6,
+				data:bruh
+			);
+			if(bruh.hitactor&&bruh.hitactor.bcorpse){
+			if(dohelptext())a_weaponmessage(StringTable.Localize("$ABILITY_LOOKUP"),25);
+		return;
+		}
+			flinetracedata rlt;
+			LineTrace(
+				angle,128,pitch*-1,
+				TRF_ALLACTORS,
+				offsetz:height-6,
+				data:rlt
+			);
+			if(!rlt.hitactor||!rlt.hitactor.bcorpse){
+			if(dohelptext())a_weaponmessage(StringTable.Localize("$ABILITY_NOCORPSE"),25);
+		}else{
+				A_TakeInventory("HDGreens",150);
+				if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_REANIMATED"),30);
+				RaiseActor(rlt.hitactor,RF_NOCHECKPOSITION);
+					let hdmb=hdmobbase(rlt.hitactor);
+		if(hdmb){
+			hdmb.bodydamage>>=5;
+			hdmb.stunned>>=5;
+		}
+					rlt.hitactor.A_SetFriendly(bfriendly);
+	    	}
+		}
+		TNT1 "[\]" 12 bright light("HEAL");
+		goto nope;
+
+	Displace:
+		TNT1 A 0{
+			A_NecrovileWarp();
+				if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_DISPLACED"),25);
+				}
+		goto nope;
+	}
+}
+
+class NecrovileAttackLight1:LightGrossHack{
+states{
+	spawn:
+		TNT1 GGHHII 3 bright light("HELL");
+		stop;
+ }
+}
+
+class NecrovileAttackLight2:LightGrossHack{
+states{
+	spawn:
+		TNT1 JJJKKKLLL 3 bright light("HELL");
+		stop;
+ }
+}
+
+class NecrovileAttackLight3:LightGrossHack{
+states{
+	spawn:
+		TNT1 MMNNOOPP 3 bright light("HELL");
+		stop;
+ }
+}
+
+class NecrovileReanimationLight:LightGrossHack{
+states{
+	spawn:
+		TNT1 "[\]" 12 bright light("HEAL");
+		stop;
+ }
+}

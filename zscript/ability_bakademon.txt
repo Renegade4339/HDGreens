@@ -1,6 +1,6 @@
 class bakademonabilities:HDMagicBase{
 	default{
-		hdweapon.refid "cac";
+		hdweapon.refid "bka";
 		obituary "$OB_BAKADEMONPLAYER";
 		tag "$TAG_BAKADEMONPLAYER";
 	}

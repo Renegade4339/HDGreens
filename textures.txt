@@ -1,0 +1,5 @@
+sprite "MMDAA0", 32, 32
+{
+    offset 16,16
+	Sprite "MMDAA0", 0, 0
+}

@@ -1,0 +1,38 @@
+version "4.10"
+
+class HDGreenPotionHandler : EventHandler
+{
+	override void CheckReplacement(ReplaceEvent e)
+	{
+		if (!e.Replacement)
+		{
+			return;
+		}
+
+		switch (e.Replacement.GetClassName())
+		{
+			case 'BlueFrag':
+				if (random[itemgrand]() <= 16)
+				{
+					e.Replacement = "HDGreenPotion";
+				}
+				break;
+			case 'HelmFrag':
+				if (random[itemgrand]() <= 4)
+				{
+					e.Replacement = "HDMageMedallion";
+				}
+				break;
+		}
+	}
+}
+
+#include "zscript/greenpotion.txt"
+#include "zscript/magemedallion.txt"
+#include "zscript/ability_base.txt"
+#include "zscript/ability_archfiend.txt"
+#include "zscript/ability_necrovile.txt"
+#include "zscript/ability_nobles.txt"
+#include "zscript/ability_imp.txt"
+#include "zscript/ability_ninjapirate.txt"
+#include "zscript/ability_bakademon.txt"

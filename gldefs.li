@@ -1,0 +1,45 @@
+// Mana Potion
+pulselight MANAPOTION
+{
+    color 0.0 0.3 0.0
+    size 16
+    secondarySize 20
+    interval 2.0
+	attenuate 1
+    offset 0 10 0
+}
+
+pulselight MAGEM
+{
+    color 0.3 0.0 0.3
+    size 16
+    secondarySize 20
+    interval 2.0
+	attenuate 1
+    offset 0 10 0
+}
+
+object PlayerShieldImpBall
+{
+	frame BAL1A { light HDIMPBALL }
+	frame BAL1B { light HDIMPBALL }
+	frame BAL1C { light HDIMPBX1 }
+	frame BAL1D { light HDIMPBX2 }
+	frame BAL1E { light HDIMPBX3 }
+}
+object PlayerArdentipedeBall
+{
+	frame BAL1A { light HDIMPBALL }
+	frame BAL1B { light HDIMPBALL }
+	frame BAL1C { light HDIMPBX1 }
+	frame BAL1D { light HDIMPBX2 }
+	frame BAL1E { light HDIMPBX3 }
+}
+object PlayerArdentipedeBall2
+{
+	frame BAL1A { light HDIMPBALL }
+	frame BAL1B { light HDIMPBALL }
+	frame BAL1C { light HDIMPBX1 }
+	frame BAL1D { light HDIMPBX2 }
+	frame BAL1E { light HDIMPBX3 }
+}

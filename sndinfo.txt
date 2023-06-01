@@ -1,0 +1,9 @@
+potion2/chug       dsgulp
+potion2/open       dsgopen
+potion2/swish      dspbtl
+potion2/away       dsfclk
+potion2/bounce     dsding    $volume potion2/bounce 0.4
+
+$volume potion2/open 0.6 $pitchset potion2/open 1.2
+$volume potion2/swish 0.3
+$volume potion2/bounce 0.2 $pitchset potion2/bounce 1.1

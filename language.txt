@@ -1,0 +1,66 @@
+[en enc eng eni ena enz default]
+
+GREENPOTION_TEXT1="\cc\-<* \cdPOTION \cc*>\-\c-\n\n\nMade\nby human mages.\n\nGood luck.";
+PICKUP_GREENPOTION="Picked up a green potion.";
+TAG_GREENPOTION="Magics Potion";
+PICKUP_MAGIC="You feel a sudden strange sensation.";
+POWER_RESONATE="You feel power resonating in you.";
+TAG_MAGEKIT="master mage kit";
+
+PICKUP_MEDALLION="Picked up a strange medallion.";
+TAG_MEDALLION="Medallion of Mages";
+
+ABILITY_NOMANA="Insufficient mana.";
+ABILITY_NOCHARGE="Insufficient charges.";
+ABILITY_NOTARGET="No target.";
+ABILITY_DISPLACED="Displaced.";
+ABILITY_DISPLACECONFIRM="Are you sure?\n(Press Altfire again to displace.)";
+ABILITY_NOCORPSE="No corpse.";
+ABILITY_NOTINAIR="You're not in air.";
+ABILITY_REANIMATED="Reanimated.";
+ABILITY_IMMOABORT="Immolation aborted.";
+ABILITY_CURSEABORT="Cursed magic aborted.";
+ABILITY_ISCURSED="Target already cursed.";
+ABILITY_LOOKUP="Look up from the corpse.";
+
+//for custom abilities
+ABILITY_ABORTED="Ability aborted.";
+
+LOG_NOVILE="Archfiend Ability Set unavailable, have a Healer Imp Ability Set instead.";
+LOG_NONECRO="Necrovile Ability Set unavailable, have a Healer Imp Ability Set instead.";
+
+//ABILITIES
+//Archfiend
+TAG_ARCHFIENDPLAYER="Magic Abilities (Archfiend)";
+OB_ARCHFIENDPLAYER="%o met the ancient firepower of %k.";
+
+//Necrovile
+TAG_NECROVILEPLAYER="Magic Abilities (Necrovile)";
+OB_NECROVILEPLAYER="%o met the firepower of %k.";
+
+//Hell Knight
+TAG_HELLKNIGHTPLAYER="Magic Abilities (Hell Knight)";
+OB_HELLKNIGHTPLAYER="%o was splayed by %k.";
+
+
+//Imps
+TAG_MIMPPLAYER="Magic Abilities (Caster Imp)";
+OB_MIMPPLAYER="%o experienced %k's magic.";
+
+TAG_FIMPPLAYER="Magic Abilities (Fighter Imp)";
+OB_FIMPPLAUER="%o was marinated by %k.";
+
+TAG_HIMPPLAYER="Magic Abilities (Healer Imp)";
+OB_HIMPPLAYER="%o could feel %k's schadenfreude.";
+
+
+//Ninja Pirate
+TAG_NINJAPIRATEPLAYER="Magic Abilities (Ninja Pirate)";
+
+//Baron of Hell
+OB_BARONPLAYER="%o was bruised by %k.";
+TAG_BARONPLAYER="Magic Abilities (Baron of Hell)";
+
+//Cacodemon
+OB_BAKADEMONPLAYER="%o was inverted by %k.";
+TAG_BAKADEMONPLAYER="Magic Abilities (Cacodemon)";

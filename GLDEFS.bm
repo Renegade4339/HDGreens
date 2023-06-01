@@ -1,0 +1,84 @@
+brightmap sprite BON3A0
+{
+   map brightmaps/POTFB.png
+}
+
+brightmap sprite BON3B0
+{
+   map brightmaps/POTFB.png
+}
+
+brightmap sprite BON3C0
+{
+   map brightmaps/POTFB.png
+}
+
+brightmap sprite BON3D0
+{
+   map brightmaps/POTFB.png
+}
+
+brightmap sprite BN3AA0
+{
+   map brightmaps/BON3A0.png
+}
+
+brightmap sprite BN3AB0
+{
+   map brightmaps/BON3B0.png
+}
+
+brightmap sprite BN3AC0
+{
+   map brightmaps/BON3C0.png
+}
+
+brightmap sprite BN3AD0
+{
+   map brightmaps/BON3D0.png
+}
+
+brightmap sprite BN3BA0
+{
+   map brightmaps/BON3A0.png
+}
+
+brightmap sprite BN3BB0
+{
+   map brightmaps/BON3B0.png
+}
+
+brightmap sprite BN3BC0
+{
+   map brightmaps/BON3C0.png
+}
+
+brightmap sprite BN3BD0
+{
+   map brightmaps/BON3D0.png
+}
+
+brightmap sprite BN3CA0
+{
+   map brightmaps/BON3A0.png
+}
+
+brightmap sprite BN3CB0
+{
+   map brightmaps/BON3B0.png
+}
+
+brightmap sprite BN3CC0
+{
+   map brightmaps/BON3C0.png
+}
+
+brightmap sprite BN3CD0
+{
+   map brightmaps/BON3D0.png
+}
+
+brightmap sprite MMDAA0
+{
+   map brightmaps/MMDABM.png
+}

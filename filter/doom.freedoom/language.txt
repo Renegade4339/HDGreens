@@ -1,0 +1,73 @@
+[en enc eng eni ena enz default]
+
+
+
+//ABILITIES -- in FreeDOOM
+
+//Ancient Necromancer
+
+TAG_ARCHFIENDPLAYER="Magic Abilities (Ancient Necromancer)";
+
+OB_ARCHFIENDPLAYER="%o met %p demise at the hands of %k.";
+
+
+
+LOG_NOVILE="Ancient Necromancer Ability Set unavailable, have a Regentipede Ability Set instead.";
+
+LOG_NONECRO="Necromancer Ability Set unavailable, have a Regentipede Ability Set instead.";
+
+
+
+//Necromancer
+
+TAG_NECROVILEPLAYER="Magic Abilities (Necromancer)";
+
+OB_NECROVILEPLAYER="%o met the fury of %k.";
+
+
+
+//Pain Bringer
+
+TAG_HELLKNIGHTPLAYER="Magic Abilities (Pain Bringer)";
+
+OB_HELLKNIGHTPLAYER="%k brought pain for %o.";
+
+
+
+
+
+//Serpentipedes
+
+TAG_MIMPPLAYER="Magic Abilities (Ardentipede)";
+
+OB_MIMPPLAYER="%o was lit up like a match by %k.";
+
+
+
+TAG_FIMPPLAYER="Magic Abilities (Serpentipede)";
+
+OB_FIMPPLAUER="%o was coiled up by %k.";
+
+
+
+TAG_HIMPPLAYER="Magic Abilities (Regentipede)";
+
+OB_HIMPPLAYER="%o shared a second opinion with %k.";
+
+
+
+
+
+//Baron of Hell
+
+OB_BARONPLAYER="%o couldn't handle %k's sadism.";
+
+TAG_BARONPLAYER="Magic Abilities (Pain Lord)";
+
+
+
+//Trilobite
+
+OB_BAKADEMONPLAYER="%o didn't like %k's caco... Wait this is Freedoom.";
+
+TAG_BAKADEMONPLAYER="Magic Abilities (Trilobite)";

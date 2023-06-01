@@ -45,7 +45,7 @@ Passive Ability: 1 in 8 chance of faking death, costing 45 mana points but requi
 
 
 ## Cacodemon Abilities
-Loadout code: `cac`
+Loadout code: `bka`
 
 `Fire` - Conjure foof balls, costs 25 mana points per conjure.
 `Altfire` - Reel target, costs 36 mana points.

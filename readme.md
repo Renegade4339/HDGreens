@@ -76,7 +76,7 @@ Loadout code: `nrv`
 `Fire` while aiming directly at the target - Hurling immolation, costs 75 mana points. Can be aborted.\
 `Altfire` - Displace, costs 250 mana points.\
 `Reload` while looking up from a corpse - Reanimate, costs 150 mana points.\
-Passige Abilities:
+Passive Abilities:
 - Your rate of regen is increased drastically at less than 50 health, almost as the regen rate of being on berserk.
 - You'll recover rapidly from stun.
 

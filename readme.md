@@ -3,7 +3,8 @@
 
 In this mod, it can allow you to perform attacks similar to that of the monsters you're fighting. The basic mana here is Greens, a substance made by the humanoid mages for their power and protection. They can be found in green potions. In rare cases, those potions will grant you random abilities. Be it from this mod or from an addon of this mod.
 
-The greens tie to the shields it has. Best to not take too much damage if you want to use the abilities.
+The greens tie to the shields it has. Best to not take too much damage if you want to use the abilities.\
+Loadout code for the mana is `grn`. Up to 1 million mana points are available.
 
 
 ## The Medallion of Mages

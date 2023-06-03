@@ -68,6 +68,6 @@ TAG_BARONPLAYER="Magic Abilities (Pain Lord)";
 
 //Trilobite
 
-OB_BAKADEMONPLAYER="%o didn't like %k's caco... Wait this is Freedoom.";
+OB_BAKADEMONPLAYER="%k made %o regret on not liking trilobites.";
 
 TAG_BAKADEMONPLAYER="Magic Abilities (Trilobite)";

@@ -57,6 +57,20 @@ class NinjaPirateAbilities:HDMagicBase{
 	}
 	override void doeffect(){
 		super.doeffect();
+	string precious = "HDPrecious";
+	class<HDDamageHandler> carblur = precious;
+		if(carblur&&owner.countinv(carblur)>0){
+			owner.A_TakeInventory(carblur,1);
+			owner.A_GiveInventory("HDGreens",1250);
+			HDMagicShield.FlashSparks(owner);
+			if(hd_debug>=4)console.printf("Corrupted Blursphere absorbed.");
+			}
+		if(owner.countinv("HDBlursphere")>0){
+			owner.A_TakeInventory("HDBlursphere",1);
+			owner.A_GiveInventory("HDGreens",500);
+			HDMagicShield.FlashSparks(owner);
+			if(hd_debug>=4)console.printf("Blursphere absorbed.");
+			}
 		if(!owner.FindInventory("DeadRingerHandler"))
 			owner.A_GiveInventory("DeadRingerHandler");
 		if(

@@ -1,0 +1,1 @@
+cameratexture HDXCAM_NINJA 360 200

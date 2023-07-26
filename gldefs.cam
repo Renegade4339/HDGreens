@@ -1,0 +1,4 @@
+HardwareShader Texture HDXCAM_NINJA{
+	Name "NinjaDesaturate"
+	Shader "ninjadesaturate.fp" 330
+}

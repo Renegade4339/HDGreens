@@ -35,6 +35,7 @@ class NinjaPirateAbilities:HDMagicBase{
 
 	toggle:
 		#### A 1{
+		A_AddBlackout(256,256,16,18);
 		for(int i=0;i<3;i++)
 			A_SpawnItemEx("HDSmoke",frandom(-1,1),
 			frandom(-1,1),frandom(4,24),vel.x,vel.y,
@@ -95,6 +96,7 @@ class NinjaPirateAbilities:HDMagicBase{
 			if(
 				owner.countinv("HDGreens")<5
 			){
+				AddBlackout(256,256,16,18);
 				owmybloods=false;
 				for(int i=0;i<3;i++)owner.A_SpawnItemEx("HDSmoke",frandom(-1,1),frandom(-1,1),frandom(4,24),vel.x,vel.y,vel.z+frandom(1,3),0,SXF_ABSOLUTEMOMENTUM|SXF_NOCHECKPOSITION,0);
 				owner.bshadow=false;
@@ -130,6 +132,7 @@ class NinjaPirateAbilities:HDMagicBase{
 			if(
 				attacking
 			){
+				AddBlackout(256,256,16,18);
 				owmybloods=false;
 				for(int i=0;i<3;i++)owner.A_SpawnItemEx("HDSmoke",frandom(-1,1),frandom(-1,1),frandom(4,24),vel.x,vel.y,vel.z+frandom(1,3),0,SXF_ABSOLUTEMOMENTUM|SXF_NOCHECKPOSITION,0);
 				owner.bshadow=false;
@@ -208,6 +211,7 @@ class DeadRingerHandler:HDDamageHandler{
 		let np=NinjaPirateAbilities(owner.findinventory("NinjaPirateAbilities"));
 
 							if(!random(0,4)&&np.owmybloods){
+								np.AddBlackout(256,256,16,18);
 								np.owmybloods=false;
 								for(int i=0;i<3;i++)
 								owner.A_SpawnItemEx("HDSmoke",frandom(-1,1),
@@ -226,7 +230,10 @@ class DeadRingerHandler:HDDamageHandler{
 				!random(0,8)
 				&&owner.countinv("HDGreens")>85
 			){
+			if(!np.owmybloods){
+					np.AddBlackout(256,256,16,18);
 					np.owmybloods=true;
+				}
 					class<actor> which;
 					if(owner.frame==11)which="DeadRingerPlayer3";
 					else which="DeadRingerPlayer";
@@ -243,6 +250,35 @@ class DeadRingerHandler:HDDamageHandler{
 						}
         	}
 		return damage,mod,flags,towound,toburn,tostun,tobreak;
+	}
+
+	override void DisplayOverlay(hdstatusbar sb,hdplayerpawn hpl){
+		let np=NinjaPirateAbilities(owner.findinventory("NinjaPirateAbilities"));
+		if(!np.owmybloods)return;
+
+		double sclx=(2./1.2);
+		double scly=2.;
+		name ctex="HDXCAM_NINJA";
+		sb.SetSize(0,300,200);
+		sb.BeginHUD(forcescaled:true);
+		texman.setcameratotexture(hpl,ctex,sb.cplayer.fov*(1.3+0.03*(sin(owner.level.time))));
+		bool invis=owner.bspecialfiredamage;
+		double camalpha=random(128,256)*(invis?0.01:0.009);
+		int ilv=invis?2:5;
+		int dif=sb.DI_SCREEN_CENTER|sb.DI_ITEM_CENTER|sb.DI_ITEM_HCENTER;
+		sb.drawimage(
+			ctex,(-ilv,0),
+			dif,
+			alpha:camalpha,
+			scale:(sclx,scly)
+		);
+		camalpha*=0.4;
+		sb.drawimage(
+			ctex,(ilv,0),
+			dif,
+			alpha:camalpha*0.6,
+			scale:(sclx,scly)
+		);
 	}
 }
 

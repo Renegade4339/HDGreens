@@ -41,7 +41,8 @@ Loadout code: `hmp`
 Loadout code: `nip`
 
 `Altfire` - Toggles invisibility, costs 15 mana points but requires 65 or more mana points to actually toggle. Toggling it off costs no points.\
-Passive Ability: 1 in 8 chance of faking death, costing 45 mana points but requiring 85 or more to activate.
+Passive Ability: 1 in 8 chance of faking death, costing 45 mana points but requiring 85 or more to activate.\
+You can pick up blurspheres for extra greens with the ability.
 
 
 ## Cacodemon Abilities

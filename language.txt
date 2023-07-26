@@ -22,6 +22,7 @@ ABILITY_IMMOABORT="Immolation aborted.";
 ABILITY_CURSEABORT="Cursed magic aborted.";
 ABILITY_ISCURSED="Target already cursed.";
 ABILITY_LOOKUP="Look up from the corpse.";
+ABILITY_CANTREZ="Unable to reanimate target.";
 
 //for custom abilities
 ABILITY_ABORTED="Ability aborted.";

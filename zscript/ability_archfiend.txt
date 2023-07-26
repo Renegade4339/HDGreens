@@ -75,16 +75,17 @@ bool rezzed;
 				ppp.scale=hdp.scale;
 				ppp.bfriendly=hdp.bfriendly;
 				ppp.friendplayer=hdp.friendplayer;
-			}
 		hdplayercorpse hdc;
 		thinkeriterator hdcorpse=ThinkerIterator.create("hdplayercorpse");
 		while(hdc=hdplayercorpse(hdcorpse.next(true))){
-			if(!(hdc.master==owner)||distance3d(hdc)>HDCONST_ONEMETRE)continue;
+			if((hdc.master==owner)&&hdc.getage()<5){
 			hdc.A_StopSound(CHAN_VOICE);
 			hdp.A_StopSound(CHAN_VOICE);
 			hdc.destroy();
 			return;
+			}
 		}
+			}
 }
 
 	override void PostBeginPlay(){

@@ -12,6 +12,7 @@ class HDPlayerRaiser:Actor{
 		if(!master||master.health>0){destroy();return;}
 		A_RaiseMaster(RF_TRANSFERFRIENDLINESS|RF_NOCHECKPOSITION);
 		master.master=tracer;
+		master.friendplayer=friendplayer;
 	}
 	states{
 	spawn:
@@ -75,6 +76,15 @@ bool rezzed;
 				ppp.bfriendly=hdp.bfriendly;
 				ppp.friendplayer=hdp.friendplayer;
 			}
+		hdplayercorpse hdc;
+		thinkeriterator hdcorpse=ThinkerIterator.create("hdplayercorpse");
+		while(hdc=hdplayercorpse(hdcorpse.next(true))){
+			if(!(hdc.master==owner)||distance3d(hdc)>HDCONST_ONEMETRE)continue;
+			hdc.A_StopSound(CHAN_VOICE);
+			hdp.A_StopSound(CHAN_VOICE);
+			hdc.destroy();
+			return;
+		}
 }
 
 	override void PostBeginPlay(){
@@ -219,6 +229,7 @@ action void A_LegacyArchieZapAttack(){
 				aaa.bcorpse
 				&&aaa.findstate("raise")
 				&&aaa.checksight(caller)
+				&&aaa.canraise()
 			){
 				int dist=int(max(
 					abs(aaa.pos.x-caller.pos.x),
@@ -327,6 +338,7 @@ action void A_LegacyArchieZapAttack(){
 				data:bruh
 			);
 			if(bruh.hitactor&&bruh.hitactor.bcorpse){
+	if(!bruh.hitactor.canraise()){if(dohelptext())a_weaponmessage(StringTable.Localize("$ABILITY_CANTREZ"),25);return;}
 			if(dohelptext())a_weaponmessage(StringTable.Localize("$ABILITY_LOOKUP"),25);
 		return;
 		}
@@ -340,9 +352,12 @@ action void A_LegacyArchieZapAttack(){
 			if(!rlt.hitactor||!rlt.hitactor.bcorpse){
 			if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_NOCORPSE"),25);
 		}else{
+	if(!rlt.hitactor.canraise()){if(dohelptext())a_weaponmessage(StringTable.Localize("$ABILITY_CANTREZ"),25);return;}
 				A_TakeInventory("HDGreens",75);
 				invoker.rezzed=true;
 				RaiseActor(rlt.hitactor,RF_NOCHECKPOSITION);
+					rlt.hitactor.friendplayer=friendplayer;
+					rlt.hitactor.master=self;
 					rlt.hitactor.A_SetFriendly(bfriendly);
 				if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_REANIMATED"),30);
 	    	}

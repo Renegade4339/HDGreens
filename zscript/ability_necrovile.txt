@@ -220,6 +220,7 @@ action void A_NecrovileFlame(){
 				data:bruh
 			);
 			if(bruh.hitactor&&bruh.hitactor.bcorpse){
+	if(!bruh.hitactor.canraise()){if(dohelptext())a_weaponmessage(StringTable.Localize("$ABILITY_CANTREZ"),25);return;}
 			if(dohelptext())a_weaponmessage(StringTable.Localize("$ABILITY_LOOKUP"),25);
 		return;
 		}
@@ -233,6 +234,7 @@ action void A_NecrovileFlame(){
 			if(!rlt.hitactor||!rlt.hitactor.bcorpse){
 			if(dohelptext())a_weaponmessage(StringTable.Localize("$ABILITY_NOCORPSE"),25);
 		}else{
+	if(!rlt.hitactor.canraise()){if(dohelptext())a_weaponmessage(StringTable.Localize("$ABILITY_CANTREZ"),25);return;}
 				A_TakeInventory("HDGreens",150);
 				if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_REANIMATED"),30);
 				RaiseActor(rlt.hitactor,RF_NOCHECKPOSITION);
@@ -241,6 +243,8 @@ action void A_NecrovileFlame(){
 			hdmb.bodydamage>>=5;
 			hdmb.stunned>>=5;
 		}
+					rlt.hitactor.friendplayer=friendplayer;
+					rlt.hitactor.master=self;
 					rlt.hitactor.A_SetFriendly(bfriendly);
 	    	}
 		}

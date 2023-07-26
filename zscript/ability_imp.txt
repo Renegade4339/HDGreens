@@ -236,11 +236,12 @@ class healerimpabilities:ImpAbilitiesCommon{
 			if(!rlt.hitactor||!rlt.hitactor.bcorpse){
 			if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_NOCORPSE"),25);
 		}else{
+	if(!rlt.hitactor.canraise()){if(dohelptext())a_weaponmessage(StringTable.Localize("$ABILITY_CANTREZ"),25);return;}
 				A_TakeInventory("HDGreens",75);
 				if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_REANIMATED"),30);
 				RaiseActor(rlt.hitactor,RF_NOCHECKPOSITION);
-					let hdmb=hdmobbase(rlt.hitactor);
-					if(hdmb)hdmb.bodydamage=0;
+					rlt.hitactor.friendplayer=friendplayer;
+					rlt.hitactor.master=self;
 					rlt.hitactor.A_SetFriendly(bfriendly);
 	    	}
 		}

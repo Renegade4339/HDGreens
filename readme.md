@@ -3,8 +3,7 @@
 
 In this mod, it can allow you to perform attacks similar to that of the monsters you're fighting. The basic mana here is Greens, a substance made by the humanoid mages for their power and protection. They can be found in green potions. In rare cases, those potions will grant you random abilities. Be it from this mod or from an addon of this mod.
 
-The greens tie to the shields it has. Best to not take too much damage if you want to use the abilities.\
-Loadout code for the mana is `grn`. Up to 1 million mana points are available.
+The greens tie to the shields it has. Best to not take too much damage if you want to use the abilities.
 
 
 ## The Medallion of Mages
@@ -91,4 +90,4 @@ Loadout code: `vil`
 `Unload` - Lay a curse - costs 250 points\
 Passive Abilities:
 - As long as you have greens in you, you're immune to fire.
-- When you die, you'll leave your soul for a moment before leaving with you but not without laying a curse first.
+- Instead of dying, you'll simply fade away from existence but not laying a curse first.

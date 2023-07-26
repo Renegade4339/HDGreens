@@ -90,4 +90,4 @@ Loadout code: `vil`
 `Unload` - Lay a curse - costs 250 points\
 Passive Abilities:
 - As long as you have greens in you, you're immune to fire.
-- Instead of dying, you'll simply fade away from existence but not laying a curse first.
+- Instead of dying, you'll simply fade away from existence but not without laying a curse first.

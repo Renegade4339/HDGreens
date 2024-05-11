@@ -18,10 +18,13 @@ class ImpAbilitiesCommon:HDMagicBase{
 
 	states{
 	fire:
+	botattack:
+		TNT1 A 0 A_JumpIf((player&&player.bot)&&!random(0,4),"bothork");
 		TNT1 A 0 A_JumpIfInventory("HDGreens",2,"spam");
 		goto notenoughgreens;
 
 	altfire:
+	bothork:
 		TNT1 A 0 A_JumpIfInventory("HDGreens",6,"hork");
 		goto notenoughgreens;
 
@@ -40,6 +43,7 @@ class ImpAbilitiesCommon:HDMagicBase{
 		A_GunFlash();
 		}
 		#### GGFE 5 A_SetTics(random(4,6));
+		TNT1 A 0{if((player&&player.bot))A_Refire("botattack");}
 		goto nope;
 
 	spam:
@@ -90,6 +94,9 @@ class mageimpabilities:ImpAbilitiesCommon{
 		TNT1 A 0 A_JumpIf(pressingzoom(),"confirmlevitationshot");
 		goto super::altfire;
 
+	botlevitationshot:
+		TNT1 A 5{if(A_CheckFloor("null"))vel.z+=4;}
+		TNT1 A 10;
 	confirmlevitationshot:
 		TNT1 A 0 A_JumpIfInventory("HDGreens",24,"HoldItRightThere");
 		goto notenoughgreens;
@@ -102,17 +109,23 @@ class mageimpabilities:ImpAbilitiesCommon{
 		TNT1 A 0{
 				if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_NOTINAIR"),25);
 				}
+		TNT1 A 0{if((player&&player.bot))A_Refire("botattack");}
 		goto nope;
 
 	confirmscattershot:
+	botscattershot:
 		TNT1 A 0 A_JumpIfInventory("HDGreens",42,"Scattershot");
 		goto notenoughgreens;
 
 	fire:
+		TNT1 A 0 A_JumpIf((player&&player.bot)&&!random(0,6),"botscattershot");
+		TNT1 A 0 A_JumpIf((player&&player.bot)&&!random(0,6),"botlevitationshot");
+		TNT1 A 0 A_JumpIf((player&&player.bot)&&!random(0,4),"bottracker");
 		TNT1 A 0 A_JumpIf(pressingzoom(),"confirmscattershot");
 		goto super::fire;
 
 	user4:
+	bottracker:
 		TNT1 A 0 A_JumpIfInventory("HDGreens",6,"trackerball");
 		goto notenoughgreens;
 
@@ -120,16 +133,27 @@ class mageimpabilities:ImpAbilitiesCommon{
 		#### E 6;
 		#### F 6;
 		TNT1 # 0 A_GunFlash();
+		TNT1 H 0{
+			target=null;
+			A_LookEx (LOF_NOSOUNDCHECK|LOF_NOSEESOUND|LOF_NOJUMP,maxseedist:0,fov:90,label:"null"
+			);
+		}
 		#### G 8{
 		A_FireProjectile("PlayerArdentipedeBall",angle:(random(-6,6)),spawnofs_xy:(random(15,17)));
 		A_TakeInventory("HDGreens",15);
 		let hdp=hdplayerpawn(self);
 		hdp.fatigue+=5;
 		}
+		TNT1 A 0{if((player&&player.bot))A_Refire("botattack");}
 		goto nope;
 
 
 	Scattershot:
+		TNT1 H 0{
+			target=null;
+			A_LookEx (LOF_NOSOUNDCHECK|LOF_NOSEESOUND|LOF_NOJUMP,maxseedist:0,fov:90,label:"null"
+			);
+		}
 		#### E 2{
 			target=null;
 			A_LookEx (LOF_NOSOUNDCHECK|LOF_NOSEESOUND|LOF_NOJUMP,maxseedist:0,fov:90,label:"null");
@@ -146,9 +170,15 @@ class mageimpabilities:ImpAbilitiesCommon{
 		A_GunFlash();
 		}
 		#### GGFE 5;
+		TNT1 A 0{if((player&&player.bot))A_Refire("botattack");}
 		goto nope;
 
 	LevitationShot:
+		TNT1 H 0{
+			target=null;
+			A_LookEx (LOF_NOSOUNDCHECK|LOF_NOSEESOUND|LOF_NOJUMP,maxseedist:0,fov:90,label:"null"
+			);
+		}
 		#### H 2{
 			invoker.islevitating=true;
 			target=null;
@@ -178,6 +208,7 @@ class mageimpabilities:ImpAbilitiesCommon{
 			}
 		}
 		#### H 8{A_TakeInventory("HDGreens",24);invoker.islevitating=false;}
+		TNT1 A 0{if((player&&player.bot))A_Refire("botattack");}
 		goto nope;
 	}
 }
@@ -193,7 +224,7 @@ class healerimpabilities:ImpAbilitiesCommon{
 		return
 		WEPHELP_FIRE.."  Throw Fireballs\n"
 		..WEPHELP_ALTFIRE.."  Throw a Shield Ball\n"
-		..WEPHELP_RELOAD.."  Reanimate"
+		..(deathmatch?"":(WEPHELP_RELOAD.."  Reanimate"))
 		;
 	}
 	override string,double getpickupsprite(){
@@ -202,6 +233,7 @@ class healerimpabilities:ImpAbilitiesCommon{
 	states{
 
 	altfire:
+	bothork:
 		TNT1 A 0 A_JumpIfInventory("HDGreens",20,"ShieldBall");
 		goto notenoughgreens;
 
@@ -222,6 +254,7 @@ class healerimpabilities:ImpAbilitiesCommon{
 		hdp.fatigue+=5;
 		}
 		#### GGFE 5;
+		TNT1 A 0{if((player&&player.bot))A_Refire("botattack");}
 		goto nope;
 
 	heal:
@@ -476,7 +509,7 @@ class PlayerShieldImpBall:HDPlayerImpBall{
 
 class PlayerArdentipedeBall:HDPlayerImpBall{
 	default{
-		missiletype "ArdentipedeBallTail";
+		missiletype "PlayerArdentipedeBallTail";
 		speed 10;
 		scale 1.2;
 		hdfireball.firefatigue int(HDCONST_MAXFIREFATIGUE*0.4);
@@ -528,7 +561,7 @@ class PlayerArdentipedeBall:HDPlayerImpBall{
 }
 class PlayerArdentipedeBall2:HDPlayerImpBall{
 	default{
-		missiletype "ArdentipedeBallTail2";
+		missiletype "PlayerArdentipedeBallTail2";
 		damage 2;
 		speed 7;
 		height 4;radius 4;
@@ -580,5 +613,27 @@ class PlayerArdentipedeBall2:HDPlayerImpBall{
 		}
 		BAL1 CDE 4 bright A_FadeOut(0.2);
 		stop;
+	}
+}
+
+class PlayerArdentipedeBallTail:HDFireballTail{
+	default{
+		deathheight 0.9;
+		gravity 0;
+		friction 0.92;
+		radius 1.6;
+	}
+	states{
+	spawn:
+		BAL1 AB 2{
+			roll=frandom(0,360);
+			scale.x*=randompick(-1,1);
+		}loop;
+	}
+}
+class PlayerArdentipedeBallTail2:PlayerArdentipedeBallTail{
+	default{
+		deathheight 0.86;
+		radius 0.7;
 	}
 }

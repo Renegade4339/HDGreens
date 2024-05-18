@@ -30,6 +30,7 @@ class archfiendabilities:HDMagicBase{
 	}
 bool rezsuccess;
 bool rezzed;
+bool cantcurse;
 
 	override void doeffect(){
 		super.doeffect();
@@ -39,11 +40,16 @@ bool rezzed;
 		}
 
 	override string gethelptext(){
-		return
+		if(!deathmatch)return
 		WEPHELP_FIRE.."  Cast Immolation\n"
 		..WEPHELP_ALTFIRE.."  Cast Legacy Immolation\n"
 		..WEPHELP_RELOAD.."  Mass Reanimate\n"
 		..WEPHELP_UNLOAD.."  Curse"
+		;
+		else return
+		WEPHELP_FIRE.."  Cast Immolation\n"
+		..WEPHELP_ALTFIRE.."  Cast Legacy Immolation\n"
+		..(cantcurse?"":(WEPHELP_UNLOAD.."  Curse"))
 		;
 	}
 
@@ -56,6 +62,11 @@ bool rezzed;
 				super.OwnerDied();
 				if(hd_pof)return;
 			HDPlayerPawn hdp=HDPlayerPawn(owner);
+		putto putto;
+		thinkeriterator puto=ThinkerIterator.create("putto");
+		while(putto=putto(puto.next(true))){
+			if((putto.master==owner)&&deathmatch)putto.A_Die();
+		}
 			if(owner){
 				ArchieDeathThingy ppp=ArchieDeathThingy(spawn("ArchieDeathThingy",hdp.pos,ALLOW_REPLACE));
 				ppp.tauntsound=hdp.tauntsound;
@@ -75,6 +86,7 @@ bool rezzed;
 				ppp.scale=hdp.scale;
 				ppp.bfriendly=hdp.bfriendly;
 				ppp.friendplayer=hdp.friendplayer;
+				if(hdp.frame==11)ppp.floppy=true;
 		hdplayercorpse hdc;
 		thinkeriterator hdcorpse=ThinkerIterator.create("hdplayercorpse");
 		while(hdc=hdplayercorpse(hdcorpse.next(true))){
@@ -133,7 +145,7 @@ action void A_ArchieZapAttack(){
 		actor lmao;
 			lmao=rlt.hitactor;
 			target=lmao;
-			actor ppp=spawn("PlayerBloodyHellFire",lmao.pos,ALLOW_REPLACE);
+			actor ppp=spawn(deathmatch?"PlayerBloodyHellFire":"PlayerBloodyHellFireRez",lmao.pos,ALLOW_REPLACE);
 				ppp.master=self;
 				ppp.A_SetFriendly(self.bfriendly);
 				ppp.friendplayer=self.friendplayer;
@@ -143,7 +155,7 @@ action void A_ArchieZapAttack(){
 	    	}else if(target){
 		actor lmao;
 			lmao=target;
-			actor ppp=spawn("PlayerBloodyHellFire",lmao.pos,ALLOW_REPLACE);
+			actor ppp=spawn(deathmatch?"PlayerBloodyHellFire":"PlayerBloodyHellFireRez",lmao.pos,ALLOW_REPLACE);
 				ppp.master=self;
 				ppp.target=lmao;
 				ppp.A_SetFriendly(self.bfriendly);
@@ -173,8 +185,9 @@ action void A_Curse(){
 			actor ppp=spawn("CurseThingy",lmao.pos,ALLOW_REPLACE);
 				ppp.master=self;
 				ppp.target=lmao;
-				ppp.A_SetFriendly(self.bfriendly);
-				ppp.friendplayer=self.friendplayer;
+				ppp.A_SetFriendly(bfriendly);
+				ppp.friendplayer=friendplayer;
+				if(deathmatch){invoker.cantcurse=true;A_SetHelpText();}
 
 			A_TakeInventory("HDGreens",250);
 	    	}
@@ -207,7 +220,7 @@ action void A_LegacyArchieZapAttack(){
 	    	}else if(target){
 		actor lmao;
 			lmao=target;
-			actor ppp=spawn("PlayerBloodyHellFire",lmao.pos,ALLOW_REPLACE);
+			actor ppp=spawn(deathmatch?"PlayerBloodyHellFire":"PlayerBloodyHellFireRez",lmao.pos,ALLOW_REPLACE);
 				ppp.master=self;
 				ppp.target=lmao;
 				ppp.A_SetFriendly(self.bfriendly);
@@ -250,18 +263,25 @@ action void A_LegacyArchieZapAttack(){
 
 	states{
 	fire:
+	botattack:
+		TNT1 A 0 A_JumpIf((player&&player.bot)&&!random(0,4),"botaltfire");
+		TNT1 A 0 A_JumpIf((player&&player.bot)&&!random(0,8)&&!invoker.cantcurse,"botuser4");
 		TNT1 A 0 A_JumpIfInventory("HDGreens",75,"CastFlames");
 		goto notenoughgreens;
 
 	altfire:
+	botaltfire:
 		TNT1 A 0 A_JumpIfInventory("HDGreens",90,"CastLegacyFlames");
 		goto notenoughgreens;
 
 	reload:
+		TNT1 A 0 A_JumpIf(deathmatch,"nope");
 		TNT1 A 0 A_JumpIfInventory("HDGreens",75,"Heal");
 		goto notenoughgreens;
 
 	user4:
+	botuser4:
+		TNT1 A 0 A_JumpIf(deathmatch&&invoker.cantcurse,"nope");
 		TNT1 A 0 A_JumpIfInventory("HDGreens",250,"Curse");
 		goto notenoughgreens;
 
@@ -282,6 +302,7 @@ action void A_LegacyArchieZapAttack(){
 		TNT1 P 0 A_Curse();
 		TNT1 PO 4 bright light("HELL");
 		TNT1 N 8 bright light("HELL");
+		TNT1 A 0{if((player&&player.bot))A_Refire("botattack");}
 		goto nope;
 
 	CastFlames:
@@ -327,6 +348,7 @@ action void A_LegacyArchieZapAttack(){
 		}
 		TNT1 PO 4 bright light("HELL") A_GunFlash();
 		TNT1 N 8 bright light("HELL") A_GunFlash();
+		TNT1 A 0{if((player&&player.bot))A_Refire("botattack");}
 		goto nope;
 	heal:
 		TNT1 G 0 bright A_SpawnItemEx("MassReanimationLight",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
@@ -418,6 +440,7 @@ action void A_LegacyArchieZapAttack(){
 		TNT1 A 0 A_LegacyArchieZapAttack();
 		TNT1 PO 4 bright light("HELL") A_GunFlash();
 		TNT1 N 8 bright light("HELL") A_GunFlash();
+		TNT1 A 0{if((player&&player.bot))A_Refire("botattack");}
 		goto nope;
 	}
 }
@@ -429,18 +452,24 @@ class ArchieDeathThingy:IdleDummy{
 	sound landsound;
 	sound medsound;
 	sound gibbedsound;
+	bool floppy;
 
-property tauntsound:tauntsound;
-property xdeathsound:tauntsound;
-property gruntsound:gruntsound;
-property landsound:landsound;
-property medsound:medsound;
-property gibbedsound:gibbedsound;
+	property tauntsound:tauntsound;
+	property xdeathsound:tauntsound;
+	property gruntsound:gruntsound;
+	property landsound:landsound;
+	property medsound:medsound;
+	property gibbedsound:gibbedsound;
 	default{
 		+ghost -solid +nointeraction
 		height 1;
 		radius 1;
 		renderstyle "add";
+	}
+
+	override void tick(){
+	super.tick();
+		if(floppy)frame=11;
 	}
 
 states{
@@ -496,7 +525,7 @@ states{
 	dead:
 		TNT1 A 19;
 		TNT1 P 1{
-			if(!target)return;
+			if(!target||deathmatch)return;
 			NecromancerGhost.Init(self);
 		}
 		stop;
@@ -512,12 +541,12 @@ class CurseThingy:IdleDummy{
 
 override void postbeginplay(){
 super.postbeginplay();
-if(!target)destroy();
+if(!target||(target&&target.player&&target.health<1))destroy();
 }
 
 override void tick(){
 super.tick();
-if(!target)destroy();
+if(!target||(target&&target.player&&target.health<1))destroy();
 A_Warp(AAPTR_TARGET, 0,0,0, 0, WARPF_NOCHECKPOSITION);
 }
 
@@ -567,8 +596,9 @@ states{
 		let aaa=spawn("NecroGhostMonster",self.pos,ALLOW_REPLACE);
 		aaa.master=master;
 		aaa.target=target;
-		aaa.A_SetFriendly(self.bfriendly);
-		aaa.friendplayer=self.friendplayer;
+		aaa.A_SetFriendly(bfriendly);
+		if(master)aaa.friendplayer=master.friendplayer;
+		else aaa.friendplayer=friendplayer;
 		}
 		TNT1 A 40;
 		TNT1 A 1;
@@ -634,7 +664,39 @@ class NecroGhostMonster:IdleDummy{
 		maxstepheight 4096;
 		maxdropoffheight 4096;
 	}
-int timer;
+	int timer;
+	string FImpCompat;
+	string MImpCompat;
+	string HImpCompat;
+	string KnaveCompat;
+	bool compatavailable;
+		
+	override void beginplay(){
+		super.beginplay();
+		
+		//names post-4.11.3c compat for imps and hell knights
+		string FighterImp = "FighterImp";
+		class<HDMobBase> FImp = FighterImp;
+		string MageImp = "MageImp";
+		class<HDMobBase> MImp = MageImp;
+		string HealerImp = "HealerImp";
+		class<HDMobBase> HImp = HealerImp;
+		string HellKnave = "Knave";
+		class<HDMobBase> Knave = HellKnave;
+		
+		timer=random(320,1600);
+		/*
+		if(fimp)FImpCompat="FighterImp";
+			else FImpCompat="Serpentipede";
+		if(mimp)MImpCompat="MageImp";
+			else FImpCompat="Ardentipede";
+		if(himp)MImpCompat="HealerImp";
+			else FImpCompat="Regentipede";
+		if(knave)KnaveCompat="Knave";
+			else KnaveCompat="PainBringer";
+		*/
+		if(fimp||mimp||himp||knave)compatavailable=true;
+	}
 
    static const Class<Actor> SpawnList[]={
 			"Serpentipede",
@@ -665,10 +727,63 @@ int timer;
 			"SpecBabuin"
     };
 
-override void beginplay(){
-super.beginplay();
-timer=random(320,1600);
-}
+   static const String SpawnListDM[]={
+			"Serpentipede",
+			"Serpentipede",
+			"Serpentipede",
+			"Ardentipede",
+			"Ardentipede",
+			"Ardentipede",
+			"PainBringer",
+			"ZombieSemiStormtrooper",
+			"ZombieSemiStormtrooper",
+			"ZombieSMGStormtrooper",
+			"ZombieSMGStormtrooper",
+			"ZombieSMGStormtrooper",
+			"ZombieAutoStormtrooper",
+			"Jackboot",
+			"Jackboot",
+			"Jackboot",
+			"JackAndJillboot",
+			"JackAndJillboot",
+			"UndeadJackbootman",
+			"UndeadJackbootman",
+			"VulcanetteZombie",
+			"Boner",
+			"VulcanetteZombie",
+			"Serpentipede",
+			"Putto",
+			"Putto"
+    };
+    
+    static const String SpawnListCompat[]={
+			"FighterImp",
+			"FighterImp",
+			"FighterImp",
+			"MageImp",
+			"MageImp",
+			"MageImp",
+			"Knave",
+			"ZombieSemiStormtrooper",
+			"ZombieSemiStormtrooper",
+			"ZombieSMGStormtrooper",
+			"ZombieSMGStormtrooper",
+			"ZombieSMGStormtrooper",
+			"ZombieAutoStormtrooper",
+			"Jackboot",
+			"Jackboot",
+			"Jackboot",
+			"JackAndJillboot",
+			"JackAndJillboot",
+			"UndeadJackbootman",
+			"UndeadJackbootman",
+			"VulcanetteZombie",
+			"Boner",
+			"VulcanetteZombie",
+			"FighterImp",
+			"Putto",
+			"Putto"
+    };
 
 states{
 	spawn:
@@ -677,7 +792,7 @@ states{
 	see:
 		TNT1 A 1{
 		if(timer<=0)setstatelabel("summon");
-		A_Wander();A_FaceTarget();
+		A_Wander();if(target)A_FaceTarget();
 		timer--;
 		}
 		loop;
@@ -685,15 +800,19 @@ states{
 	summon:
 		TNT1 A 0 A_SpawnItemEx("TeleFog",flags:SXF_NOCHECKPOSITION);
 		TNT1 A 1{
-        let spawned = SpawnList [random (0, SpawnList.Size () - 1)];
+		Class<HDMobBase> spawned;
+			if(compatavailable)spawned=(SpawnListCompat [random (0, SpawnListCompat.Size () - 1)]);
+			else spawned = (SpawnListDM [random (0, SpawnListDM.Size () - 1)]);
 		actor aaa=spawn(spawned,self.pos,ALLOW_REPLACE);
 		if(!aaa)return;
 		aaa.master=master;
-		aaa.target=target;
+		if(target)aaa.target=target;
 		aaa.angle=angle;
 		aaa.pitch=pitch;
 		aaa.A_SetFriendly(self.bfriendly);
-		aaa.friendplayer=self.friendplayer;
+		aaa.teleportmove(aaa.pos,true);
+		if(master)aaa.friendplayer=master.friendplayer;
+		else aaa.friendplayer=friendplayer;
 		}
 		stop;
  }
@@ -872,9 +991,6 @@ class PlayerBloodyHellFire:HDMobBase{
 	melee:
 		FIRE ABABABCBCBCDCDCDEDEFGFGFGFGHGHGH 2 A_VileFireMelee();
 		stop;
-	heal:
-		FIRE ABABCBCDCDEDEFGFGFGHGH 1;
-		stop;
 	death:
 		FIRE A 2{
 			bnointeraction=true;
@@ -920,6 +1036,14 @@ class PlayerBloodyHellFire:HDMobBase{
 			&&absangle(lasttargetangle,target.angle)>frandom(0,500)
 		)target=null;
 		else lasttargetangle=target.angle;
+	}
+}
+
+class PlayerBloodyHellFireRez:PlayerBloodyHellFire{
+	states{
+	heal:
+		FIRE ABABCBCDCDEDEFGFGFGHGH 1;
+		stop;
 	}
 }
 class PlayerArchFireLight:PointLight{
@@ -1023,9 +1147,7 @@ class PlayerShard:HDActor{
 	spawn:
 		APLS A 0;
 		APLS A 0 A_SetGravity(0.1);
-		APLS AB 1 bright A_Look();
-		loop;
-	see:
+	idle:
 		APLS A 0 A_Jump(64,2);
 		APLS A 0 {vel.z+=frandom(-4,8);}
 		APLS A 2 bright A_JumpIf(alpha<0.1,"null");

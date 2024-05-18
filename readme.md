@@ -11,7 +11,7 @@ GZDoom Actor Name: `HDMageMedallion`\
 Loadout code: `mge`\
 Spawns In: `Armor Bonus spawns`
 
-A medallion used by the unknown group of mages across planet Earth. It is said that it gives off the energies given by the potions found scattered across the battlefield.
+A medallion used by the unknown group of mages across planet Earth. It is said that it gives off the energies given by the potions found scattered across the battlefield. It can be also used to determine the amount of mana stored in you.
 
 
 ## Fighter Imp Abilities
@@ -34,7 +34,7 @@ Loadout code: `mmp`
 Loadout code: `hmp`
 
 `Zoom` + `Fire` - Throw a shield ball, costs 20 mana points.\
-`Reload` while looking at a corpse - Reanimate, costs 75 mana points.
+`Reload` while looking at a corpse - Reanimate, costs 75 mana points. (Not available in Deathmatch.)
 
 
 ## Ninja Pirate Abilities
@@ -58,7 +58,7 @@ Loadout code: `bka`
 Loadout code: `kni`
 
 `Fire` - Throw balefireballs, costs 10 mana points per throw.\
-`Altfire` - Summon putti, costs 20 mana points.
+`Altfire` - Summon putti, costs 20 mana points. (Up to two can be spawned by the user in Deathmatch.)
 
 
 ## Baron of Hell Abilities
@@ -70,13 +70,23 @@ Loadout code: `brn`
 `Unload` - Barrage, costs 45 mana points.\
 Passive Ability: When you die, you release some frag shards.
 
+## Pain Elemental Abilities
+Loadout code: `pai`
+
+`Fire` while having 4 or more charges - Launches a lost soul. Costs 66 mana points.\
+`Altfire` - Throw a salvo of 3 fireballs. Costs 24 mana points and increases the charge by one.\
+
+Passive ability:
+When you die, you'll explode, causing 3 lost souls to escape. Unless if you have the Archfiend Abilities.
+
 
 ## Necrovile Abilities
 Loadout code: `nrv`
 
 `Fire` while aiming directly at the target - Hurling immolation, costs 75 mana points. Can be aborted.\
 `Altfire` - Displace, costs 250 mana points.\
-`Reload` while looking up from a corpse - Reanimate, costs 150 mana points.\
+`Reload` while looking up from a corpse - Reanimate, costs 150 mana points. (Not available in Deathmatch.)\
+`Reload` while in Deathmatch - Call in two demons, costs 150 mana points. Once per life.\
 Passive Abilities:
 - Your rate of regen is increased drastically at less than 50 health, almost as the regen rate of being on berserk.
 - You'll recover rapidly from stun.
@@ -87,8 +97,8 @@ Loadout code: `vil`
 
 `Fire` while aiming directly at the target - Fire column immolation, costs 75 mana points. Can be aborted.\
 `Altfire` - Immolation barrage, costs 90 mana points. Can be aborted.\
-`Reload` while looking up from a corpse - Mass reanimation, costs 75 points per corpse.\
-`Unload` - Lay a curse - costs 250 points\
+`Reload` while looking up from a corpse - Mass reanimation, costs 75 points per corpse. (Not available in Deathmatch.)\
+`Unload` - Lay a curse - costs 250 points. (Deathmatch-exclusive: The curse summons demons instead of healing. Once per life.)\
 Passive Abilities:
 - As long as you have greens in you, you're immune to fire.
 - Instead of dying, you'll simply fade away from existence but not without laying a curse first.

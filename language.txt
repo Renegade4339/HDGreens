@@ -9,11 +9,13 @@ TAG_MAGEKIT="master mage kit";
 
 PICKUP_MEDALLION="Picked up a strange medallion.";
 TAG_MEDALLION="Medallion of Mages";
+MEDALLION_QUERY="Greens left: ";
 
 ABILITY_NOMANA="Insufficient mana.";
 ABILITY_NOCHARGE="Insufficient charges.";
 ABILITY_NOTARGET="No target.";
 ABILITY_DISPLACED="Displaced.";
+ABILITY_NOPUTTOSPAM="Up to two putti can\nbe spawned at the time by yourself.";
 ABILITY_DISPLACECONFIRM="Are you sure?\n(Press Altfire again to displace.)";
 ABILITY_NOCORPSE="No corpse.";
 ABILITY_NOTINAIR="You're not in air.";
@@ -49,7 +51,7 @@ TAG_MIMPPLAYER="Magic Abilities (Caster Imp)";
 OB_MIMPPLAYER="%o experienced %k's magic.";
 
 TAG_FIMPPLAYER="Magic Abilities (Fighter Imp)";
-OB_FIMPPLAUER="%o was marinated by %k.";
+OB_FIMPPLAYER="%o was marinated by %k.";
 
 TAG_HIMPPLAYER="Magic Abilities (Healer Imp)";
 OB_HIMPPLAYER="%o could feel %k's schadenfreude.";
@@ -57,6 +59,7 @@ OB_HIMPPLAYER="%o could feel %k's schadenfreude.";
 
 //Ninja Pirate
 TAG_NINJAPIRATEPLAYER="Magic Abilities (Ninja Pirate)";
+OB_NINJAPIRATEPLAYER="Congratulations! %o has died."; //due to the fact that the obituary can change after using a projectile to fatally injure the player then switch to another weapon.
 
 //Baron of Hell
 OB_BARONPLAYER="%o was bruised by %k.";
@@ -65,3 +68,7 @@ TAG_BARONPLAYER="Magic Abilities (Baron of Hell)";
 //Cacodemon
 OB_BAKADEMONPLAYER="%o was inverted by %k.";
 TAG_BAKADEMONPLAYER="Magic Abilities (Cacodemon)";
+
+//Pain Elemental
+OB_PAINELEMENTALPLAYER="%o braved %k's elements";
+TAG_PAINELEMENTALPLAYER="Magic Abilities (Pain Elemental)";

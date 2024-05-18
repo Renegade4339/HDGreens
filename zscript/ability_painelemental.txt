@@ -1,0 +1,192 @@
+class painelementalabilities:HDMagicBase{
+	default{
+		hdweapon.refid "pai";
+		obituary "$OB_PAINELEMENTALPLAYER";
+		tag "$TAG_PAINELEMENTALPLAYER";
+	}
+	int brewing;
+	bool itssatantime;
+	bool fireballs;
+
+	override void OwnerDied(){
+		super.OwnerDied();
+		brewing=0; //reset
+		let hdp=HDPlayerPawn(owner);
+		if(hdp.findinventory("ArchfiendAbilities")&&!hd_pof)return;
+		string LostSoul = "FlyingSkull";
+		class<HDMobBase> asshole = LostSoul;
+		HDExplosion kaboom=HDExplosion(spawn("HDExplosion",hdp.pos,ALLOW_REPLACE));
+		if(kaboom)kaboom.HDBlast(hdp,
+			blastradius:196,blastdamage:random(20,69),blastdamagetype:"thermal",
+			immolateradius:96,immolateamount:random(4,20),immolatechance:32
+		);
+			if(!bplayingid){
+			for(int i=0;i<7;i++){
+				Hatchling.ParticleZigZag(self,
+					(pos.xy+(frandom(-radius,radius),frandom(-radius,radius)),
+					pos.z+frandom(0,height)),
+					(pos.xy,pos.z)+(frandom(-1,1),frandom(-1,1),frandom(-1,1))*frandom(30,90)
+					);
+				}
+			}
+		for(int i=0;i<3;i++){
+			actor aaa;
+			if(asshole)[bseesdaggers,aaa]=hdp.A_SpawnItemEx(asshole,
+				randompick(-20,0,20),randompick(-20,0,20),frandom(1,12),
+
+				frandom(2,7),frandom(-4,4),frandom(1,3),
+				frandom(-45,45),
+				flags:SXF_NOCHECKPOSITION|SXF_SETMASTER
+			);
+			else [bseesdaggers,aaa]=hdp.A_SpawnItemEx("Hatchling",
+				randompick(-20,0,20),randompick(-20,0,20),frandom(1,12),
+				frandom(2,7),frandom(-4,4),frandom(1,3),
+				frandom(-45,45),
+				flags:SXF_NOCHECKPOSITION|SXF_SETMASTER
+			);
+			aaa.bfriendly=hdp.bfriendly;
+			aaa.master=hdp;
+			aaa.friendplayer=hdp.friendplayer;
+			aaa.A_LookEx (LOF_NOSOUNDCHECK|LOF_NOSEESOUND|LOF_NOJUMP,maxseedist:0,fov:360,label:"null"
+			);
+			aaa.setstatelabel("missile");
+			//let ccc=FlyingSkull(aaa);if(ccc)ccc.A_SkullLaunch();
+		}
+		hdplayercorpse hdc;
+		thinkeriterator hdcorpse=ThinkerIterator.create("hdplayercorpse");
+		while(hdc=hdplayercorpse(hdcorpse.next(true))){
+			if((hdc.master==owner)&&hdc.getage()<5){
+			hdc.bodydamage=500;
+			hdc.setstatelabel("xdeath");
+			return;
+			}
+		}
+	}
+
+	override string gethelptext(){
+		if(bplayingid)return
+		WEPHELP_FIRE.."  Launch skull\n"
+		..WEPHELP_ALTFIRE.."  Launch fireballs\n"
+		..WEPHELP_UNLOAD.."  [REDACTED]"
+		;
+		else return
+		WEPHELP_FIRE.."  Launch hatchling\n"
+		..WEPHELP_ALTFIRE.."  Launch fireballs\n"
+		..WEPHELP_UNLOAD.."  [REDACTED]"
+		;
+	}
+
+	override string,double getpickupsprite(){
+		return "SKULC1",0.5;
+	}
+
+	states{
+	fire:
+	botattack:
+		TNT1 H 0{
+			target=null;
+			A_LookEx (LOF_NOSOUNDCHECK|LOF_NOSEESOUND|LOF_NOJUMP,maxseedist:0,fov:90,label:"null"
+			);
+		}
+		TNT1 A 0 A_JumpIf((player&&player.bot)&&(!random(0,4)||invoker.brewing>0),"botfireball");
+		TNT1 A 0 A_JumpIf((player&&player.bot)&&!random(0,16)&&invoker.brewing<1,"botsatanball");
+		TNT1 A 0 A_JumpIfInventory("HDGreens",66,"Skull");
+		goto notenoughgreens;
+
+	altfire:
+	botfireball:
+		TNT1 A 0 A_JumpIfInventory("HDGreens",24,"Fireballs");
+		goto notenoughgreens;
+
+	user4:
+	botsatanball:
+		TNT1 A 0 A_JumpIfInventory("HDGreens",66,"SatanBall");
+		goto notenoughgreens;
+
+	SatanBall:
+		TNT1 F 0 A_JumpIf(invoker.brewing>0,"nocharge");
+		TNT1 A 0{invoker.itssatantime=true;}
+		goto common;
+
+	Fireballs:
+		TNT1 A 0{invoker.fireballs=true;}
+		goto common;
+
+	Skull:
+		TNT1 F 0 A_JumpIf(invoker.brewing>0,"nocharge");
+	Common:
+		TNT1 DDE 2;
+		TNT1 F 3;
+		TNT1 F 0 A_JumpIf(invoker.fireballs,"reallyfireballs");
+		TNT1 F 6{
+			A_GunFlash();
+			if(invoker.itssatantime){
+				A_FireProjectile("Satanball");
+				A_ChangeVelocity(-cos(pitch),0,sin(pitch),CVF_RELATIVE);
+				invoker.itssatantime=false;
+				//A_TakeInventory("HDGreens",66);
+				invoker.brewing=4;
+				return;
+			}
+			string LostSoul = "FlyingSkull";
+
+			class<HDMobBase> asshole = LostSoul;
+			if(asshole){
+			vector3 skulloffs=(cos(pitch)*(cos(angle),sin(angle)),-sin(pitch));
+			vector3 spawnpos=(pos.xy,pos.z+height*0.6)+skulloffs*32;
+			let aaa=spawn(asshole,spawnpos,ALLOW_REPLACE);
+			if(!aaa)return;
+			aaa.master=self;
+			aaa.target=target;
+			aaa.angle=angle;
+			aaa.pitch=pitch;
+			aaa.bNOBLOCKMONST=true;
+			aaa.vel=vel+(cos(pitch)*(cos(angle),sin(angle)),-sin(pitch))*24;
+			aaa.A_SetFriendly(bfriendly);
+			aaa.friendplayer=friendplayer;
+			aaa.A_StartSound(aaa.attacksound,CHAN_VOICE,CHANF_OVERLAP);
+			aaa.setstatelabel("fly");
+			}else{
+			vector3 hatchoffs=(cos(pitch)*(cos(angle),sin(angle)),-sin(pitch));
+			vector3 spawnpos=(pos.xy,pos.z+height*0.6)+hatchoffs*32;
+			let aaa=Hatchling(spawn("Hatchling",spawnpos,ALLOW_REPLACE));
+			if(!aaa)return;
+			aaa.master=self;
+			aaa.target=target;
+			aaa.angle=angle;
+			aaa.bNOBLOCKMONST=true;
+			aaa.pitch=pitch;
+			aaa.vel=vel+(cos(pitch)*(cos(angle),sin(angle)),-sin(pitch))*6;
+			aaa.A_SetFriendly(bfriendly);
+			aaa.friendplayer=friendplayer;
+			aaa.A_Vocalize(aaa.attacksound);
+			aaa.setstatelabel("shoot");
+			}
+			invoker.brewing=4;
+			A_TakeInventory("HDGreens",66);
+		}
+		goto attackend;
+	ReallyFireballs:
+		TNT1 F 6{
+			if(invoker.brewing>0)invoker.brewing--;
+			A_GunFlash();
+			invoker.fireballs=false;
+			A_SpawnProjectile("PlayerMatribiteBall",flags:CMF_AIMDIRECTION,pitch:pitch);
+			A_TakeInventory("HDGreens",8);
+			vel.z+=frandom(0.2,2.);
+		}
+		TNT1 F 0 A_GunFlash();
+		TNT1 F 0 A_TakeInventory("HDGreens",8);
+		TNT1 F 4 A_SpawnProjectile("PlayerMatribiteBall",flags:CMF_AIMDIRECTION,pitch:pitch);
+		TNT1 F 0 A_TakeInventory("HDGreens",8);
+		TNT1 F 0 A_GunFlash();
+		TNT1 F 3 A_SpawnProjectile("ShieldImpBall",flags:CMF_AIMDIRECTION,pitch:pitch);
+	attackend:
+		TNT1 ED 3;
+		TNT1 A 0{if((player&&player.bot))A_Refire("botattack");}
+		goto nope;
+	}
+}
+class PlayerMatribiteBall:PlayerShieldImpBall{
+	default{speed 26;}
+}

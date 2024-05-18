@@ -27,8 +27,11 @@ class HDGreenPotionHandler : EventHandler
 	}
 }
 
+//BASIC STUFF
 #include "zscript/greenpotion.txt"
 #include "zscript/magemedallion.txt"
+
+//ABILITIES
 #include "zscript/ability_base.txt"
 #include "zscript/ability_archfiend.txt"
 #include "zscript/ability_necrovile.txt"
@@ -36,3 +39,4 @@ class HDGreenPotionHandler : EventHandler
 #include "zscript/ability_imp.txt"
 #include "zscript/ability_ninjapirate.txt"
 #include "zscript/ability_bakademon.txt"
+#include "zscript/ability_painelemental.txt"

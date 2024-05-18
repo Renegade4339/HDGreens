@@ -46,7 +46,7 @@ OB_MIMPPLAYER="%o was lit up like a match by %k.";
 
 TAG_FIMPPLAYER="Magic Abilities (Serpentipede)";
 
-OB_FIMPPLAUER="%o was coiled up by %k.";
+OB_FIMPPLAYER="%o was coiled up by %k.";
 
 
 
@@ -68,6 +68,14 @@ TAG_BARONPLAYER="Magic Abilities (Pain Lord)";
 
 //Trilobite
 
-OB_BAKADEMONPLAYER="%k made %o regret on not liking trilobites.";
+OB_BAKADEMONPLAYER="%o didn't like aliens, and %k got furious.";
 
 TAG_BAKADEMONPLAYER="Magic Abilities (Trilobite)";
+
+
+
+//Pain Elemental
+
+OB_PAINELEMENTALPLAYER="%o's matter was blown to bits by %k.";
+
+TAG_PAINELEMENTALPLAYER="Magic Abilities (Matribite)";

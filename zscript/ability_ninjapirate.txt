@@ -11,6 +11,7 @@ class NinjaPirateAbilities:HDMagicBase{
 	default{
 		hdweapon.refid "nip"; //cat
 		tag "$TAG_NINJAPIRATEPLAYER";
+		obituary "$OB_NINJAPIRATEPLAYER";
 	}
 
 	override string gethelptext(){
@@ -28,6 +29,17 @@ class NinjaPirateAbilities:HDMagicBase{
 		bool pained;
 		bool faked;
 	states{
+
+	fire:
+		TNT1 A 0 A_WeaponBusy(false);
+	readytodonothing:
+		TNT1 A 0 A_JumpIf(pressing(BT_SPEED)||pressingfire()||pressingaltfire()||pressingreload()||pressingzoom(),2);
+		TNT1 A 1 A_WeaponReady(WRF_NOFIRE);
+		loop;
+		TNT1 A 0 A_SelectWeapon("HDFist");
+		TNT1 A 1 A_WeaponReady(WRF_NOFIRE);
+		wait;
+
 	altfire:
 		TNT1 A 0 A_JumpIf(invoker.owmybloods,"toggle");
 		TNT1 A 0 A_JumpIfInventory("HDGreens",65,"toggle");
@@ -220,7 +232,7 @@ class DeadRingerHandler:HDDamageHandler{
 		int tostun,
 		int tobreak
 	){
-		if((!owner||mod=="maxhpdrain")||mod=="internal"||mod=="bleedout")
+		if((!owner||mod=="maxhpdrain")||mod=="internal"||mod=="bleedout"||mod=="staples"||mod=="hot")
 		return damage,mod,flags,towound,toburn,tostun,tobreak;
 		let np=NinjaPirateAbilities(owner.findinventory("NinjaPirateAbilities"));
 

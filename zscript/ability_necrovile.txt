@@ -7,12 +7,22 @@ class necrovileabilities:HDMagicBase{
 	bool rezsuccess;
 	bool isattacking;
 	int confirmationtimer;
+	bool cantsummon;
 
 	override string gethelptext(){
-		return
+		if(!deathmatch)return
 		WEPHELP_FIRE.."  Find target/cast cursed magics\n"
 		..WEPHELP_ALTFIRE.."  Displace\n"
 		..WEPHELP_RELOAD.."  Reanimate"
+		;
+		else if(!cantsummon) return
+		WEPHELP_FIRE.."  Find target/cast cursed magics\n"
+		..WEPHELP_ALTFIRE.."  Displace\n"
+		..WEPHELP_RELOAD.."  Reel in 2 demons"
+		;
+		else return
+		WEPHELP_FIRE.."  Find target/cast cursed magics\n"
+		..WEPHELP_ALTFIRE.."  Displace"
 		;
 	}
 
@@ -146,6 +156,9 @@ action void A_NecrovileFlame(){
 
 	states{
 	fire:
+	botattack:
+		TNT1 A 0 A_JumpIf((player&&player.bot)&&!random(0,4),"bottele");
+		TNT1 A 0 A_JumpIf((player&&player.bot)&&!random(0,8),"botsummon");
 		TNT1 A 0 A_JumpIfInventory("HDGreens",75,"DevilMagics");
 		goto notenoughgreens;
 
@@ -153,7 +166,13 @@ action void A_NecrovileFlame(){
 		TNT1 A 0 A_JumpIfInventory("HDGreens",250,"DisplaceConfirmation");
 		goto notenoughgreens;
 
+	botcheck:
+		TNT1 A 0{if((player&&player.bot))A_Refire("botattack");}
+		goto nope;
+
 	reload:
+	botsummon:
+		TNT1 A 0 A_JumpIf(deathmatch&&invoker.cantsummon,"botcheck");
 		TNT1 A 0 A_JumpIfInventory("HDGreens",150,"Heal");
 		goto notenoughgreens;
 
@@ -207,9 +226,12 @@ action void A_NecrovileFlame(){
 		TNT1 G 0 bright A_SpawnItemEx("NecrovileAttackLight3",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
 		TNT1 MMNNOOPP 3 bright light("HELL") A_GunFlash();
 		TNT1 # 0{invoker.isattacking=false;}
+		TNT1 A 0{if((player&&player.bot))A_Refire("botattack");}
 		goto nope;
 
 	heal:
+		TNT1 G 0 A_JumpIf(deathmatch,"summon");
+		TNT1 G 0 A_JumpIf(deathmatch,"nope");
 		TNT1 G 0 bright A_SpawnItemEx("NecrovileReanimationLight",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
 		TNT1 G 0{
 			flinetracedata bruh;
@@ -251,11 +273,32 @@ action void A_NecrovileFlame(){
 		TNT1 "[\]" 12 bright light("HEAL");
 		goto nope;
 
+	summon:
+		TNT1 A 0 A_JumpIf(invoker.cantsummon,"nope");
+		TNT1 G 0 bright A_SpawnItemEx("NecrovileReanimationLight",flags:SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		TNT1 AA 0{
+		let aaa=spawn("NecroGhostMonster",pos,ALLOW_REPLACE);
+		aaa.master=self;
+		aaa.target=target;
+		aaa.A_SetFriendly(bfriendly);
+		aaa.friendplayer=friendplayer;
+		aaa.setstatelabel("see");
+		}
+		TNT1 A 0{
+		invoker.cantsummon=true;
+		A_TakeInventory("HDGreens",150);
+		A_SetHelpText();
+		}
+		TNT1 "[\]" 12 bright light("HEAL");
+		goto nope;
+
 	Displace:
+	bottele:
 		TNT1 A 0{
 			A_NecrovileWarp();
 				if(dohelptext())A_WeaponMessage(StringTable.Localize("$ABILITY_DISPLACED"),25);
 				}
+		TNT1 A 0{if((player&&player.bot))A_Refire("botattack");}
 		goto nope;
 	}
 }

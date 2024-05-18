@@ -71,7 +71,29 @@ class HD_RandomAbility:HDPickup{
     default{
         -hdpickup.fitsinbackpack
         hdpickup.refid "abi";
-        tag "Random Magic Ability";
+        tag "Random Magic Ability (One, Auto Selected)";
+    }
+    states{
+    spawn:
+        PINS A -1; stop;
+    pickup:
+        TNT1 A 0{
+            		class<weapon> power;
+		HDMagicList hml=HDMagicList.get();
+		power=(class<HDMagicBase>)(hml.invclasses[random(0,hml.invclasses.size()-1)]);
+		    let hdp=HDPlayerPawn(self);
+			if(hdp)
+			    hdf.give(hdp,power,1);
+			    hdweaponselector.select(hdp,power);
+        }fail;
+    }
+}
+
+class HD_RandomAbility2:HDPickup{
+    default{
+        -hdpickup.fitsinbackpack
+        hdpickup.refid "rma";
+        tag "Random Magic Ability (Multiple)";
     }
     states{
     spawn:

@@ -19,10 +19,17 @@ class HDMageMedallion:HDPickup{
 	spawn:
 		MMDA A -1 light("MAGEM");
 		stop;
+	use:
+		TNT1 A 0 A_Log(Stringtable.Localize("$MEDALLION_QUERY")..countinv("HDGreens"));
+		fail;
 	}
 	override void doeffect(){
 		super.doeffect();
 		if(
+				deathmatch
+				&&owner.countinv("HDGreens")<(250*amount)
+		)A_GiveInventory("HDGreens",1);
+		else if(
 				!random(0,320)
 				&&owner.countinv("HDGreens")<(250*amount)
 		){
